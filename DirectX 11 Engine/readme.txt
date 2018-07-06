@@ -1,2 +1,1 @@
-Revision 10 adds in texture loading. Reviews downloading and using DirectXTK. Changes back to SOLIDFILL.
-Also reviews using DxTex to convert to DDS format.
+To compile in x64, go to the libs folder x64 folder and extract the RAR archive. It was too big to fit on github uncompressed.

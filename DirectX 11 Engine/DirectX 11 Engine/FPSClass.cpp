@@ -21,28 +21,28 @@ FpsClass::~FpsClass()
 
 void FpsClass::Initialize()
 {
-	m_fps = 0;
-	m_count = 0;
-	m_startTime = timeGetTime();
+	this->fps = 0;
+	this->count = 0;
+	this->startTime = timeGetTime();
 	return;
 }
 
 
 void FpsClass::Frame()
 {
-	m_count++;
+	this->count++;
 
-	if (timeGetTime() >= (m_startTime + 1000))
+	if (timeGetTime() >= (this->startTime + 1000))
 	{
-		m_fps = m_count;
-		m_count = 0;
+		this->fps = this->count;
+		this->count = 0;
 
-		m_startTime = timeGetTime();
+		this->startTime = timeGetTime();
 	}
 }
 
 
 int FpsClass::GetFps()
 {
-	return m_fps;
+	return this->fps;
 }

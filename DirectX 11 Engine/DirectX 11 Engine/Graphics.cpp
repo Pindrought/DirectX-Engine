@@ -84,11 +84,11 @@ void GenerateP3d()
 
 bool Graphics::Initialize(HWND hwnd, int width, int height)
 {
-	m_fps.Initialize();
+	this->fps.Initialize();
 
-	m_hwnd = hwnd;
-	m_width = width;
-	m_height = height;
+	this->hwnd = hwnd;
+	this->width = width;
+	this->height = height;
 
 	HRESULT hr;
 	//Describe our Back Buffer for the swap chain
@@ -112,13 +112,13 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	swapChainDesc.SampleDesc.Quality = 0; //Image Quality Level
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapChainDesc.BufferCount = 1; //# of buffers in swap chain
-	swapChainDesc.OutputWindow = m_hwnd;
+	swapChainDesc.OutputWindow = this->hwnd;
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
 	//Create our SwapChain
 	hr = D3D11CreateDeviceAndSwapChain(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, NULL, NULL, NULL,
-		D3D11_SDK_VERSION, &swapChainDesc, &m_swapChain, &m_d3d11Device, NULL, &m_d3d11DevCon);
+		D3D11_SDK_VERSION, &swapChainDesc, &this->swapChain, &this->d3d11Device, NULL, &this->d3d11DevCon);
 	if (hr != S_OK) //If error occurred
 	{
 		LogError("D3D11CreateDeviceAndSwapChain Failed. HRESULT = " + std::to_string(hr));
@@ -127,7 +127,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	//Create our BackBuffer
 	ID3D11Texture2D* backBuffer;
-	hr = m_swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
+	hr = this->swapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&backBuffer));
 	if (hr != S_OK) //If error occurred
 	{
 		LogError("IDXGISwapChain::GetBuffer Failed. HRESULT = " + std::to_string(hr));
@@ -136,8 +136,8 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 
 	//Describe our Depth/Stencil Buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width = m_width;
-	depthStencilDesc.Height = m_height;
+	depthStencilDesc.Width = this->width;
+	depthStencilDesc.Height = this->height;
 	depthStencilDesc.MipLevels = 1;
 	depthStencilDesc.ArraySize = 1;
 	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
@@ -148,14 +148,14 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	depthStencilDesc.CPUAccessFlags = 0;
 	depthStencilDesc.MiscFlags = 0;
 
-	hr = m_d3d11Device->CreateTexture2D(&depthStencilDesc, NULL, &m_depthStencilBuffer);
+	hr = this->d3d11Device->CreateTexture2D(&depthStencilDesc, NULL, &this->depthStencilBuffer);
 	if (hr != S_OK) //If error occurred
 	{
 		LogError("ID3D11Device::CreateTexture2D Failed when used for depth stencil buffer. HRESULT = " + std::to_string(hr));
 		return false;
 	}
 
-	hr = m_d3d11Device->CreateDepthStencilView(m_depthStencilBuffer, NULL, &m_depthStencilView);
+	hr = this->d3d11Device->CreateDepthStencilView(this->depthStencilBuffer, NULL, &this->depthStencilView);
 	if (hr != S_OK) //If error occurred
 	{
 		LogError("ID3D11Device::CreateDepthStencilView Failed when used for depth stencil view. HRESULT = " + std::to_string(hr));
@@ -163,7 +163,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	}
 
 	//Create our Render Target
-	hr = m_d3d11Device->CreateRenderTargetView(backBuffer, NULL, &m_renderTargetView);
+	hr = this->d3d11Device->CreateRenderTargetView(backBuffer, NULL, &this->renderTargetView);
 	if (hr != S_OK) //If error occurred
 	{
 		LogError("ID3D11Device::CreateRenderTargetView Failed. HRESULT = " + std::to_string(hr));
@@ -172,7 +172,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	backBuffer->Release();
 
 	//Set our Render Target
-	m_d3d11DevCon->OMSetRenderTargets(1, &m_renderTargetView, m_depthStencilView);
+	this->d3d11DevCon->OMSetRenderTargets(1, &this->renderTargetView, this->depthStencilView);
 
 	if (InitializeScene() == false)
 		return false;
@@ -185,13 +185,13 @@ bool Graphics::InitializeScene()
 {
 	//load default shaders
 	HRESULT hr;
-	hr = ShaderLoader::LoadCompiledShader("Debug\\defaultvertex.cso", &m_vs_buffer);
+	hr = ShaderLoader::LoadCompiledShader("Debug\\defaultvertex.cso", &this->vs_buffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to load vertex shader. Error Code: " + HRToString(hr));
 		return false;
 	}
-	hr = ShaderLoader::LoadCompiledShader("Debug\\defaultpixel.cso", &m_ps_buffer);
+	hr = ShaderLoader::LoadCompiledShader("Debug\\defaultpixel.cso", &this->ps_buffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to load pixel shader. Error Code: " + HRToString(hr));
@@ -199,13 +199,13 @@ bool Graphics::InitializeScene()
 	}
 
 	//load compiled shaders
-	hr = ShaderLoader::LoadCompiledShader("Debug\\skymapvertex.cso", &m_vs_skymap_buffer);
+	hr = ShaderLoader::LoadCompiledShader("Debug\\skymapvertex.cso", &this->vs_skymap_buffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to load vertex shader. Error Code: " + HRToString(hr));
 		return false;
 	}
-	hr = ShaderLoader::LoadCompiledShader("Debug\\skymappixel.cso", &m_ps_skymap_buffer);
+	hr = ShaderLoader::LoadCompiledShader("Debug\\skymappixel.cso", &this->ps_skymap_buffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to load pixel shader. Error Code: " + HRToString(hr));
@@ -213,14 +213,14 @@ bool Graphics::InitializeScene()
 	}
 
 	//Create the Shader Objects
-	hr = m_d3d11Device->CreateVertexShader(m_vs_buffer->GetBufferPointer(), m_vs_buffer->GetBufferSize(), NULL, &m_vs);
+	hr = this->d3d11Device->CreateVertexShader(this->vs_buffer->GetBufferPointer(), this->vs_buffer->GetBufferSize(), NULL, &this->vs);
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Vertex Shader. Error Code: " + HRToString(hr));
 		return false;
 	}
 
-	hr = m_d3d11Device->CreatePixelShader(m_ps_buffer->GetBufferPointer(), m_ps_buffer->GetBufferSize(), NULL, &m_ps);
+	hr = this->d3d11Device->CreatePixelShader(this->ps_buffer->GetBufferPointer(), this->ps_buffer->GetBufferSize(), NULL, &this->ps);
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Pixel Shader. Error Code: " + HRToString(hr));
@@ -228,14 +228,14 @@ bool Graphics::InitializeScene()
 	}
 
 	//create skymap shaders
-	hr = m_d3d11Device->CreateVertexShader(m_vs_skymap_buffer->GetBufferPointer(), m_vs_skymap_buffer->GetBufferSize(), NULL, &m_vs_skymap);
+	hr = this->d3d11Device->CreateVertexShader(this->vs_skymap_buffer->GetBufferPointer(), this->vs_skymap_buffer->GetBufferSize(), NULL, &this->vs_skymap);
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Vertex Shader. Error Code: " + HRToString(hr));
 		return false;
 	}
 
-	hr = m_d3d11Device->CreatePixelShader(m_ps_skymap_buffer->GetBufferPointer(), m_ps_skymap_buffer->GetBufferSize(), NULL, &m_ps_skymap);
+	hr = this->d3d11Device->CreatePixelShader(this->ps_skymap_buffer->GetBufferPointer(), this->ps_skymap_buffer->GetBufferSize(), NULL, &this->ps_skymap);
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Pixel Shader. Error Code: " + HRToString(hr));
@@ -251,8 +251,8 @@ bool Graphics::InitializeScene()
 	};
 	UINT numElements = ARRAYSIZE(layout);
 
-	m_d3d11Device->CreateInputLayout(layout, numElements, m_vs_buffer->GetBufferPointer(),
-		m_vs_buffer->GetBufferSize(), &m_vertLayout);
+	this->d3d11Device->CreateInputLayout(layout, numElements, this->vs_buffer->GetBufferPointer(),
+		this->vs_buffer->GetBufferSize(), &this->vertLayout);
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Input Layout. Error Code: " + std::to_string(hr));
@@ -260,10 +260,10 @@ bool Graphics::InitializeScene()
 	}
 
 	//Set the Input Layout
-	m_d3d11DevCon->IASetInputLayout(m_vertLayout);
+	this->d3d11DevCon->IASetInputLayout(this->vertLayout);
 
 	//Set Primitive Topology
-	m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	//Create the Viewport
 	D3D11_VIEWPORT viewport;
@@ -273,18 +273,18 @@ bool Graphics::InitializeScene()
 	viewport.MaxDepth = 1.0f;
 	viewport.TopLeftX = 0;
 	viewport.TopLeftY = 0;
-	viewport.Width = m_width;
-	viewport.Height = m_height;
+	viewport.Width = this->width;
+	viewport.Height = this->height;
 
 	//Set the Viewport for Rasterizer Stage
-	m_d3d11DevCon->RSSetViewports(1, &viewport);
+	this->d3d11DevCon->RSSetViewports(1, &viewport);
 
 	//Setup camera and world view projection matrix
 	camera.SetPosition(0, 0, -1);
-	camera.SetProjectionValues(90, m_width, m_height, 1, 1000);
+	camera.SetProjectionValues(90, this->width, this->height, 1, 1000);
 	
 	//create constant buffer for vertex shader
-	cb_vs_default.Initialize(m_d3d11Device);
+	cb_vs_default.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize default Vertex Shader Constant Buffer. Error Code: " + std::to_string(hr));
@@ -293,36 +293,36 @@ bool Graphics::InitializeScene()
 
 	//GenerateP3d();
 
-	if (m_skybox.Initialize(m_d3d11Device, m_d3d11DevCon, "skybox.p3d") != S_OK)
+	if (this->skybox.Initialize(this->d3d11Device, this->d3d11DevCon, "skybox.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
 	}
-	m_skybox.SetPos(0, 0, 0);
+	this->skybox.SetPos(0, 0, 0);
 
-	if (m_model.Initialize(m_d3d11Device, m_d3d11DevCon, "cube.p3d") != S_OK)
-	{
-		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
-		return false;
-	}
-
-	m_model.SetPos(0, 2, 3);
-
-	if (m_grassModel.Initialize(m_d3d11Device, m_d3d11DevCon, "grass.p3d") != S_OK)
+	if (this->model.Initialize(this->d3d11Device, this->d3d11DevCon, "cube.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	m_grassModel.SetPos(0, -2, 0);
-	m_grassModel.SetRotation(0, 0, 0);
-	m_grassModel.SetScaling(1000, 1000, 1000);
+	this->model.SetPos(0, 2, 3);
+
+	if (this->grassModel.Initialize(this->d3d11Device, this->d3d11DevCon, "grass.p3d") != S_OK)
+	{
+		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
+	this->grassModel.SetPos(0, -2, 0);
+	this->grassModel.SetRotation(0, 0, 0);
+	this->grassModel.SetScaling(1000, 1000, 1000);
 
 	camera.SetRotation(0,0,0);
 
 
 	//create constant buffer for pixel shader ambient/directional light
-	cb_ps_light.Initialize(m_d3d11Device);
+	cb_ps_light.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for Lighted Pixel Shader. Error Code: " + std::to_string(hr));
@@ -334,12 +334,12 @@ bool Graphics::InitializeScene()
 	cb_ps_light.Data.light.ambient = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
 	cb_ps_light.Data.light.diffuse = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
 	auto psbuffer = cb_ps_light.Buffer();
-	m_d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the vertex shader
+	this->d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the vertex shader
 
-	cb_ps_light.ApplyChanges(m_d3d11DevCon);
+	cb_ps_light.ApplyChanges(this->d3d11DevCon);
 
 	//Create point light constant buffer in pixel shader
-	cb_ps_pointlight.Initialize(m_d3d11Device);
+	cb_ps_pointlight.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for PointLight Pixel Shader. Error Code: " + std::to_string(hr));
@@ -354,9 +354,9 @@ bool Graphics::InitializeScene()
 
 	cb_ps_pointlight.Data.light = temp;
 	auto psbuffer2 = cb_ps_pointlight.Buffer();
-	m_d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the vertex shader
+	this->d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the vertex shader
 
-	cb_ps_pointlight.ApplyChanges(m_d3d11DevCon);
+	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
 
 	//Create rasterizer desc
@@ -365,30 +365,30 @@ bool Graphics::InitializeScene()
 	ZeroMemory(&rasterizerdesc, sizeof(D3D11_RASTERIZER_DESC));
 	rasterizerdesc.FillMode = D3D11_FILL_SOLID;
 	rasterizerdesc.CullMode = D3D11_CULL_BACK;
-	hr = m_d3d11Device->CreateRasterizerState(&rasterizerdesc, &m_rasterizerState);
+	hr = this->d3d11Device->CreateRasterizerState(&rasterizerdesc, &this->rasterizerState);
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateRasterizerState. Error Code: " + std::to_string(hr));
 		return false;
 	}
-	m_d3d11DevCon->RSSetState(m_rasterizerState);
+	this->d3d11DevCon->RSSetState(this->rasterizerState);
 
 	//Load texture into our shader resource
-	hr = CreateDDSTextureFromFile(m_d3d11Device, L"Data\\hqskymap2.dds", NULL, &m_skyboxTexture);
+	hr = CreateDDSTextureFromFile(this->d3d11Device, L"Data\\hqskymap2.dds", NULL, &this->skyboxTexture);
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateDDSTextureFromFile. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	hr = CreateDDSTextureFromFile(m_d3d11Device, L"Data\\braynzar.dds", NULL, &m_testTexture);
+	hr = CreateDDSTextureFromFile(this->d3d11Device, L"Data\\braynzar.dds", NULL, &this->testTexture);
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateDDSTextureFromFile. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	hr = CreateDDSTextureFromFile(m_d3d11Device, L"Data\\grass.dds", NULL, &m_grassTexture);
+	hr = CreateDDSTextureFromFile(this->d3d11Device, L"Data\\grass.dds", NULL, &this->grassTexture);
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateDDSTextureFromFile. Error Code: " + std::to_string(hr));
@@ -405,15 +405,15 @@ bool Graphics::InitializeScene()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	hr = m_d3d11Device->CreateSamplerState(&sampDesc, &m_samplerState); //Create sampler state
+	hr = this->d3d11Device->CreateSamplerState(&sampDesc, &this->samplerState); //Create sampler state
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateSamplerState. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	spriteBatch = std::make_unique<SpriteBatch>(m_d3d11DevCon);
-	spriteFont = std::make_unique<SpriteFont>(m_d3d11Device, L"Data\\Fonts\\consolas.spritefont");
+	spriteBatch = std::make_unique<SpriteBatch>(this->d3d11DevCon);
+	spriteFont = std::make_unique<SpriteFont>(this->d3d11Device, L"Data\\Fonts\\consolas.spritefont");
 
 	return true;
 }
@@ -421,85 +421,85 @@ bool Graphics::InitializeScene()
 void Graphics::Release()
 {
 	//Release the COM Objects we created
-	if (m_swapChain != nullptr)
-		m_swapChain->Release();
-	if (m_d3d11Device != nullptr)
-		m_d3d11Device->Release();
-	if (m_d3d11DevCon != nullptr)
-		m_d3d11DevCon->Release();
-	if (m_vs != nullptr)
-		m_vs->Release();
-	if (m_ps != nullptr)
-		m_ps->Release();
-	if (m_vs_buffer != nullptr)
-		m_vs_buffer->Release();
-	if (m_ps_buffer != nullptr)
-		m_ps_buffer->Release();
-	if (m_vertLayout != nullptr)
-		m_vertLayout->Release();
-	if (m_vertBuffer != nullptr)
-		m_vertBuffer->Release();
-	if (m_vertLayout != nullptr)
-		m_vertLayout->Release();
-	if (m_depthStencilView != nullptr)
-		m_depthStencilView->Release();
-	if (m_depthStencilBuffer != nullptr)
-		m_depthStencilBuffer->Release();
-	if (m_rasterizerState != nullptr)
-		m_rasterizerState->Release();
-	if (m_testTexture != nullptr)
-		m_testTexture->Release();
-	if (m_samplerState != nullptr)
-		m_samplerState->Release();
+	if (this->swapChain != nullptr)
+		this->swapChain->Release();
+	if (this->d3d11Device != nullptr)
+		this->d3d11Device->Release();
+	if (this->d3d11DevCon != nullptr)
+		this->d3d11DevCon->Release();
+	if (this->vs != nullptr)
+		this->vs->Release();
+	if (this->ps != nullptr)
+		this->ps->Release();
+	if (this->vs_buffer != nullptr)
+		this->vs_buffer->Release();
+	if (this->ps_buffer != nullptr)
+		this->ps_buffer->Release();
+	if (this->vertLayout != nullptr)
+		this->vertLayout->Release();
+	if (this->vertBuffer != nullptr)
+		this->vertBuffer->Release();
+	if (this->vertLayout != nullptr)
+		this->vertLayout->Release();
+	if (this->depthStencilView != nullptr)
+		this->depthStencilView->Release();
+	if (this->depthStencilBuffer != nullptr)
+		this->depthStencilBuffer->Release();
+	if (this->rasterizerState != nullptr)
+		this->rasterizerState->Release();
+	if (this->testTexture != nullptr)
+		this->testTexture->Release();
+	if (this->samplerState != nullptr)
+		this->samplerState->Release();
 }
 
 void Graphics::RenderFrame(float dt)
 {
-	m_fps.Frame();
+	this->fps.Frame();
 	//Clear our backbuffer to the updated color
 	const float bgColor[4] = { 0, 0, 0.0f, 1.0f };
 
 	//??BLEND STATE?? - come back to this later
 	auto psbuffer = cb_ps_light.Buffer();
-	m_d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the pixel shader for ambient/directional light 
-	cb_ps_light.ApplyChanges(m_d3d11DevCon);
+	this->d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the pixel shader for ambient/directional light 
+	cb_ps_light.ApplyChanges(this->d3d11DevCon);
 
 	auto psbuffer2 = cb_ps_pointlight.Buffer();
-	m_d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the pixel shader for point light
-	cb_ps_pointlight.ApplyChanges(m_d3d11DevCon);
+	this->d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the pixel shader for point light
+	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
 	//??Depth Stencil State?? - come back to this later
-	m_d3d11DevCon->IASetInputLayout(m_vertLayout);
-	m_d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	m_d3d11DevCon->RSSetState(m_rasterizerState);
-	m_d3d11DevCon->PSSetSamplers(0, 1, &m_samplerState); //set sampler state to use
+	this->d3d11DevCon->IASetInputLayout(this->vertLayout);
+	this->d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	this->d3d11DevCon->RSSetState(this->rasterizerState);
+	this->d3d11DevCon->PSSetSamplers(0, 1, &this->samplerState); //set sampler state to use
 	
-	m_d3d11DevCon->ClearRenderTargetView(m_renderTargetView, bgColor);
+	this->d3d11DevCon->ClearRenderTargetView(this->renderTargetView, bgColor);
 	//Refresh the Depth/Stencil view
-	m_d3d11DevCon->ClearDepthStencilView(m_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	this->d3d11DevCon->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//draw skybox
-	m_d3d11DevCon->VSSetShader(m_vs_skymap, 0, 0);
-	m_d3d11DevCon->PSSetShader(m_ps_skymap, 0, 0);
+	this->d3d11DevCon->VSSetShader(this->vs_skymap, 0, 0);
+	this->d3d11DevCon->PSSetShader(this->ps_skymap, 0, 0);
 
-	m_d3d11DevCon->PSSetShaderResources(0, 1, &m_skyboxTexture); //set texture to use for pixel shader
-	m_skybox.Draw(cb_vs_default, m_d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->skyboxTexture); //set texture to use for pixel shader
+	this->skybox.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
-	m_d3d11DevCon->VSSetShader(m_vs, 0, 0);
-	m_d3d11DevCon->PSSetShader(m_ps, 0, 0);
+	this->d3d11DevCon->VSSetShader(this->vs, 0, 0);
+	this->d3d11DevCon->PSSetShader(this->ps, 0, 0);
 	//draw grass
-	m_d3d11DevCon->PSSetShaderResources(0, 1, &m_grassTexture); //set texture to use for pixel shader
-	m_grassModel.Draw(cb_vs_default, m_d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->grassTexture); //set texture to use for pixel shader
+	this->grassModel.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//draw model
-	m_d3d11DevCon->PSSetShaderResources(0, 1, &m_testTexture); //set texture to use for pixel shader
-	m_model.Draw(cb_vs_default, m_d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->testTexture); //set texture to use for pixel shader
+	this->model.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 	
 
 	//draw font
 	spriteBatch->Begin();
-	std::string writeString = "FPS: " + std::to_string(m_fps.GetFps());
+	std::string writeString = "FPS: " + std::to_string(this->fps.GetFps());
 	std::wstring wstr(writeString.begin(), writeString.end());
 	const wchar_t * cstr = wstr.c_str();
 	spriteFont->DrawString(spriteBatch.get(), cstr, XMFLOAT2(10, 10), Colors::Red, 0.0f, { 0,0 }, { 0.5f,0.5f });
@@ -512,5 +512,5 @@ void Graphics::RenderFrame(float dt)
 
 
 	//Present the backbuffer to the screen
-	m_swapChain->Present(0, 0);
+	this->swapChain->Present(0, 0);
 }

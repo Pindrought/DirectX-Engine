@@ -18,6 +18,6 @@ public:
 	unsigned char GetKeyCode() const;
 
 private:
-	EventType m_type;
-	unsigned char m_key;
+	EventType type;
+	unsigned char key;
 };

@@ -16,11 +16,11 @@ public:
 	XMVECTOR GetPos();
 private:
 	void UpdateWorldMatrix();
-	ID3D11Buffer* m_indexBuffer;
-	ID3D11Buffer* m_vertBuffer;
-	XMMATRIX m_world;
-	float m_x, m_y, m_z;
-	float m_xRot, m_yRot, m_zRot;
-	float m_xScale, m_yScale, m_zScale;
-	UINT m_vertCount;
+	ID3D11Buffer* indexBuffer;
+	ID3D11Buffer* vertBuffer;
+	XMMATRIX world;
+	float x, y, z;
+	float xRot, yRot, zRot;
+	float xScale, yScale, zScale;
+	UINT vertCount;
 };

@@ -2,9 +2,9 @@
 
 bool Engine::Initialize(HINSTANCE hInstance, int width, int height)
 {
-	m_hInstance = hInstance;
-	m_width = width;
-	m_height = height;
+	this->hInstance = hInstance;
+	this->width = width;
+	this->height = height;
 
 
 	rid.usUsagePage = 0x01;
@@ -18,7 +18,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int width, int height)
 		//registration failed. Call GetLastError for the cause of the error
 	}
 
-	m_Timer.Initialize();
+	this->Timer.Initialize();
 
 	if (InitializeWindow() == false)
 		return false;
@@ -75,7 +75,7 @@ LRESULT CALLBACK HandleMessageSetup(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM 
 		// forward message to window class handler
 		return pEngine->HandleMsg(hwnd, uMsg, wParam, lParam);
 	}
-	// if we get a message before the WM_NCCREATE message, handle with default handler
+	// if we get a message before the Wthis->NCCREATE message, handle with default handler
 	return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
 
@@ -114,7 +114,7 @@ LRESULT CALLBACK Engine::HandleMsg(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 		{
 			int x = LOWORD(lParam);
 			int y = HIWORD(lParam);
-			if (x >= 0 && x < m_width && y >= 0 && y < m_height)
+			if (x >= 0 && x < this->width && y >= 0 && y < this->height)
 			{
 				mouse.OnMouseMove(x, y);
 			}
@@ -232,7 +232,7 @@ LRESULT CALLBACK Engine::HandleMsg(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 bool Engine::InitializeWindow()
 {
-	if (m_hInstance == NULL)
+	if (this->hInstance == NULL)
 	{
 		LogError("Engine::InitializeWindow Failed - hInstance is NULL");
 		return false;
@@ -244,7 +244,7 @@ bool Engine::InitializeWindow()
 	wc.lpfnWndProc = HandleMessageSetup; //Pointer to Window Proc function for handling messages from this window
 	wc.cbClsExtra = 0; //# of extra bytes to allocate following the window-class structure. We are not currently using this.
 	wc.cbWndExtra = 0; //# of extra bytes to allocate following the window instance. We are not currently using this.
-	wc.hInstance = m_hInstance; //Handle to the instance that contains the Window Procedure
+	wc.hInstance = this->hInstance; //Handle to the instance that contains the Window Procedure
 	wc.hIcon = NULL;   //Handle to the class icon. Must be a handle to an icon resource. We are not currently assigning an icon, so this is null.
 	wc.hIconSm = NULL; //Handle to small icon for this class. We are not currently assigning an icon, so this is null.
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW); //Default Cursor - If we leave this null, we have to explicitly set the cursor's shape each time it enters the window.
@@ -259,15 +259,15 @@ bool Engine::InitializeWindow()
 	int screenHeight = GetSystemMetrics(SM_CYSCREEN);
 
 	// Place the window in the middle of the screen.
-	int posX = (screenWidth - m_width) / 2; //Left position of Window
-	int posY = (screenHeight - m_height) / 2; //Top position of Window
+	int posX = (screenWidth - this->width) / 2; //Left position of Window
+	int posY = (screenHeight - this->height) / 2; //Top position of Window
 
 											// Set up rectangle for our window dimensions/location
 	
 	wr.left = posX;
-	wr.right = m_width + wr.left;
+	wr.right = this->width + wr.left;
 	wr.top = posY;
-	wr.bottom = m_height + wr.top;
+	wr.bottom = this->height + wr.top;
 	AdjustWindowRect(&wr, WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, FALSE);
 	// Create the window with the screen settings and get the handle to it. For more information on the function itself, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632680(v=vs.85).aspx
 	HWND hwnd = CreateWindowEx(0, //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
@@ -280,7 +280,7 @@ bool Engine::InitializeWindow()
 		wr.bottom - wr.top, //Window Height
 		NULL, //Handle to parent of this window. Since this is the first window, it has no parent window.
 		NULL, //Handle to menu or child window identifier. Can be set to NULL and use menu in WindowClassEx if a menu is desired to be used.
-		m_hInstance, //Handle to the instance of module to be used with this window
+		this->hInstance, //Handle to the instance of module to be used with this window
 		this); //Param to create window
 
 	if (hwnd == NULL) //If window failed to create
@@ -289,7 +289,7 @@ bool Engine::InitializeWindow()
 		return false;
 	}
 
-	m_hwnd = hwnd;
+	this->hwnd = hwnd;
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(hwnd, SW_SHOW);
@@ -301,7 +301,7 @@ bool Engine::InitializeWindow()
 
 bool Engine::InitializeGraphics()
 {
-	if (m_gfx.Initialize(m_hwnd,m_width,m_height) == false)
+	if (this->gfx.Initialize(this->hwnd,this->width,this->height) == false)
 		return false;
 	return true;
 }
@@ -313,7 +313,7 @@ bool Engine::ProcessMessages()
 	ZeroMemory(&msg, sizeof(MSG)); // Initialize the message structure.
 
 	if (PeekMessage(&msg, //Where to store message (if one exists) See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644943(v=vs.85).aspx
-					m_hwnd, //Handle to window we are checking messages for
+					this->hwnd, //Handle to window we are checking messages for
 					0,    //Minimum Filter Msg Value - We are not filtering for specific messages, but the min/max could be used to filter only mouse messages for example.
 					0,    //Maximum Filter Msg Value
 					PM_REMOVE))//Remove message after capturing it via PeekMessage. For more argument options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms644943(v=vs.85).aspx
@@ -332,8 +332,8 @@ bool Engine::ProcessMessages()
 
 bool Engine::Update()
 {
-	m_Timer.Frame();
-	dt = m_Timer.GetTime();
+	this->Timer.Frame();
+	dt = this->Timer.GetTime();
 
 	//If input to be processed by keyboard class
 	while (kbd.CharBufferIsEmpty() == false) //If characters to be processed
@@ -361,25 +361,25 @@ bool Engine::Update()
 		//}
 		if (et == MouseEvent::EventType::RAW_MOVE)
 		{
-			m_gfx.camera.AdjustRotation((float)me.GetPosY() * dt * 0.01f, (float)me.GetPosX() * dt * 0.01f,0);
+			this->gfx.camera.AdjustRotation((float)me.GetPosY() * dt * 0.01f, (float)me.GetPosX() * dt * 0.01f,0);
 			//prevMousePos = me.GetPos();
 		}
 		if (et == MouseEvent::EventType::RPress)
 		{
-			float xValue = ((float)me.GetPosX() / (float)m_width) * 2 - 1;
-			float yValue = ((float)me.GetPosY() / (float)m_height) * 2 - 1;
+			float xValue = ((float)me.GetPosX() / (float)this->width) * 2 - 1;
+			float yValue = ((float)me.GetPosY() / (float)this->height) * 2 - 1;
 			float zValue = 1;
-			const XMMATRIX cam = m_gfx.camera.GetProjectionMatrix();
+			const XMMATRIX cam = this->gfx.camera.GetProjectionMatrix();
 			xValue /= cam.r[0].m128_f32[0];
 			yValue /= -cam.r[1].m128_f32[1];
 			XMVECTOR pickRayInViewSpaceDir = XMVectorSet(xValue, yValue, zValue, 0.0f);
 			pickRayInViewSpaceDir = XMVector3Normalize(pickRayInViewSpaceDir);
 			XMVECTOR pickRayInViewSpacePos = XMVectorSet(0, 0, 0, 0);
-			XMMATRIX viewInverse = XMMatrixInverse(nullptr, m_gfx.camera.GetViewMatrix());
+			XMMATRIX viewInverse = XMMatrixInverse(nullptr, this->gfx.camera.GetViewMatrix());
 			XMVECTOR pickRayInWorldSpacePos = XMVector3TransformCoord(pickRayInViewSpacePos, viewInverse);
 			XMVECTOR pickRayInWorldSpaceDir = XMVector3TransformNormal(pickRayInViewSpaceDir, viewInverse);
 
-			XMVECTOR vecToModel = m_gfx.m_model.GetPos() - m_gfx.camera.GetPosition();
+			XMVECTOR vecToModel = this->gfx.model.GetPos() - this->gfx.camera.GetPosition();
 
 			XMVECTOR vecLength = XMVector3Length(vecToModel);
 
@@ -389,21 +389,21 @@ bool Engine::Update()
 
 			XMVECTOR pickDestination = pickRayInWorldSpacePos + pickRayInWorldSpaceDir * dotResult * vecLength;
 
-			XMVECTOR vecFromPickDestToModel = m_gfx.m_model.GetPos() - pickDestination;
+			XMVECTOR vecFromPickDestToModel = this->gfx.model.GetPos() - pickDestination;
 
 			if (XMVector3Length(vecFromPickDestToModel).m128_f32[0] < 1.4f)
 			{
-				m_gfx.drawText = "Intersection";
+				this->gfx.drawText = "Intersection";
 				cubeRotThing = -cubeRotThing;
 			}
 			else
 			{
-				m_gfx.drawText = "No intersection";
+				this->gfx.drawText = "No intersection";
 			}
 		}
 		else
 		{
-			m_gfx.drawText = "N/A";
+			this->gfx.drawText = "N/A";
 		}
 	}
 
@@ -412,46 +412,46 @@ bool Engine::Update()
 
 	if (kbd.KeyIsPressed('W'))
 	{
-		m_gfx.camera.AdjustPosition(m_gfx.camera.GetForwardVector() * dt * 0.02f);
+		this->gfx.camera.AdjustPosition(this->gfx.camera.GetForwardVector() * dt * 0.02f);
 	}
 	if (kbd.KeyIsPressed('S'))
 	{
-		m_gfx.camera.AdjustPosition(m_gfx.camera.GetBackwardVector() * dt * 0.02f);
+		this->gfx.camera.AdjustPosition(this->gfx.camera.GetBackwardVector() * dt * 0.02f);
 	}
 	if (kbd.KeyIsPressed('A'))
 	{
-		m_gfx.camera.AdjustPosition(m_gfx.camera.GetLeftVector() * dt * 0.02f);
+		this->gfx.camera.AdjustPosition(this->gfx.camera.GetLeftVector() * dt * 0.02f);
 	}
 	if (kbd.KeyIsPressed('D'))
 	{
-		m_gfx.camera.AdjustPosition(m_gfx.camera.GetRightVector() * dt * 0.02f);
+		this->gfx.camera.AdjustPosition(this->gfx.camera.GetRightVector() * dt * 0.02f);
 	}
 	if (kbd.KeyIsPressed(VK_SPACE))
 	{
-		m_gfx.camera.AdjustPosition({ 0.0f, dt * 0.02f, 0.0f });
+		this->gfx.camera.AdjustPosition({ 0.0f, dt * 0.02f, 0.0f });
 	}
 	if (kbd.KeyIsPressed('Z'))
 	{
-		m_gfx.camera.AdjustPosition({ 0.0f, -dt * 0.02f, 0.0f });
+		this->gfx.camera.AdjustPosition({ 0.0f, -dt * 0.02f, 0.0f });
 	}
 	if (kbd.KeyIsPressed(VK_RIGHT))
 	{
-		m_gfx.camera.AdjustRotation(0, 0.002f*dt, 0);
+		this->gfx.camera.AdjustRotation(0, 0.002f*dt, 0);
 	}
 	if (kbd.KeyIsPressed(VK_LEFT))
 	{
-		m_gfx.camera.AdjustRotation(0, -0.002f*dt, 0);
+		this->gfx.camera.AdjustRotation(0, -0.002f*dt, 0);
 	}
 	if (kbd.KeyIsPressed(VK_UP))
 	{
-		m_gfx.camera.AdjustRotation(-0.002f*dt, 0, 0);
+		this->gfx.camera.AdjustRotation(-0.002f*dt, 0, 0);
 	}
 	if (kbd.KeyIsPressed(VK_DOWN))
 	{
-		m_gfx.camera.AdjustRotation(0.002f*dt, 0, 0);
+		this->gfx.camera.AdjustRotation(0.002f*dt, 0, 0);
 	}
 
-	m_gfx.m_model.AdjustRotation(0, cubeRotThing*dt, 0);
+	this->gfx.model.AdjustRotation(0, cubeRotThing*dt, 0);
 
 
 	return true;
@@ -463,19 +463,19 @@ void Engine::RenderFrame()
 
 	//Code to rotate model
 
-	m_gfx.m_skybox.SetPos(m_gfx.camera.GetPosition());
+	this->gfx.skybox.SetPos(this->gfx.camera.GetPosition());
 
-	m_gfx.RenderFrame(dt);
+	this->gfx.RenderFrame(dt);
 }
 
 void Engine::Release()
 {
-	m_gfx.Release();
-	if (m_hwnd != NULL)
+	this->gfx.Release();
+	if (this->hwnd != NULL)
 	{
-		DestroyWindow(m_hwnd);
-		UnregisterClass(L"WinClass", m_hInstance);
-		m_hwnd = NULL;
-		m_hInstance = NULL;
+		DestroyWindow(this->hwnd);
+		UnregisterClass(L"WinClass", this->hInstance);
+		this->hwnd = NULL;
+		this->hInstance = NULL;
 	}
 }

@@ -3,13 +3,13 @@
 
 struct MousePoint
 {
-	int m_x;
-	int m_y;
+	int x;
+	int y;
 	MousePoint& operator -(const MousePoint& a)
 	{
 		MousePoint diff;
-		diff.m_x = this->m_x - a.m_x;
-		diff.m_y = this->m_y - a.m_y;
+		diff.x = x - a.x;
+		diff.y = y - a.y;
 		return diff;
 	}
 };
@@ -32,9 +32,9 @@ public:
 		Invalid
 	};
 private:
-	EventType m_type;
-	int m_x;
-	int m_y;
+	EventType type;
+	int x;
+	int y;
 public:
 	MouseEvent();
 	MouseEvent(const EventType type, const int x, const int y);

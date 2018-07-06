@@ -22,16 +22,16 @@ TimerClass::~TimerClass()
 bool TimerClass::Initialize()
 {
 	// Check to see if this system supports high performance timers.
-	QueryPerformanceFrequency((LARGE_INTEGER*)&m_frequency);
-	if (m_frequency == 0)
+	QueryPerformanceFrequency((LARGE_INTEGER*)&this->frequency);
+	if (this->frequency == 0)
 	{
 		return false;
 	}
 
 	// Find out how many times the frequency counter ticks every millisecond.
-	m_ticksPerMs = (float)(m_frequency / 1000);
+	this->ticksPerMs = (float)(this->frequency / 1000);
 
-	QueryPerformanceCounter((LARGE_INTEGER*)&m_startTime);
+	QueryPerformanceCounter((LARGE_INTEGER*)&this->startTime);
 
 	return true;
 }
@@ -45,11 +45,11 @@ void TimerClass::Frame()
 
 	QueryPerformanceCounter((LARGE_INTEGER*)&currentTime);
 
-	timeDifference = (float)(currentTime - m_startTime);
+	timeDifference = (float)(currentTime - this->startTime);
 
-	m_frameTime = timeDifference / m_ticksPerMs;
+	this->frameTime = timeDifference / this->ticksPerMs;
 
-	m_startTime = currentTime;
+	this->startTime = currentTime;
 
 	return;
 }
@@ -57,5 +57,5 @@ void TimerClass::Frame()
 
 float TimerClass::GetTime()
 {
-	return m_frameTime;
+	return this->frameTime;
 }

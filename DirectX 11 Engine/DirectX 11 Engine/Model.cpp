@@ -60,7 +60,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 	vertexBufferData.pSysMem = v;
 	HRESULT hr;
-	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_vertBuffer);
+	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &this->vertBuffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the vertex buffer. Error Code: " + std::to_string(hr));
@@ -96,7 +96,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 		20, 22, 23
 	};
 
-	m_vertCount = ARRAYSIZE(indices);
+	this->vertCount = ARRAYSIZE(indices);
 
 	{
 		float x = 5.0f;
@@ -188,7 +188,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 
 	D3D11_SUBRESOURCE_DATA indexBufferData;
 	indexBufferData.pSysMem = indices;
-	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_indexBuffer);
+	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &this->indexBuffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the index buffer. Error Code: " + std::to_string(hr));
@@ -215,7 +215,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 	infile.read((char*)v.get(), sizeof(Vertex) * vertexCount);
 	std::unique_ptr<DWORD[]> indices(new DWORD[indexCount]); //indices data
 	infile.read((char*)indices.get(), sizeof(DWORD) * indexCount);
-	m_vertCount = indexCount;
+	this->vertCount = indexCount;
 
 	Vertex * check = v.get();
 	DWORD * check2 = indices.get();
@@ -236,7 +236,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 	vertexBufferData.pSysMem = v.get();
 	HRESULT hr;
-	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &m_vertBuffer);
+	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &this->vertBuffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the vertex buffer. Error Code: " + std::to_string(hr));
@@ -254,7 +254,7 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 
 	D3D11_SUBRESOURCE_DATA indexBufferData;
 	indexBufferData.pSysMem = indices.get();
-	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &m_indexBuffer);
+	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &this->indexBuffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the index buffer. Error Code: " + std::to_string(hr));
@@ -271,75 +271,75 @@ void Model::Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, ID3D11DeviceConte
 	//Set the vertex buffer
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, &m_vertBuffer, &stride, &offset);
-	deviceContext->IASetIndexBuffer(m_indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetVertexBuffers(0, 1, &this->vertBuffer, &stride, &offset);
+	deviceContext->IASetIndexBuffer(this->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
 	//constant buffer for vertex shader
-	vertexBuffer.Data.wvp = XMMatrixTranspose(m_world * viewMat * projectionMat);
-	vertexBuffer.Data.world = XMMatrixTranspose(m_world);
+	vertexBuffer.Data.wvp = XMMatrixTranspose(this->world * viewMat * projectionMat);
+	vertexBuffer.Data.world = XMMatrixTranspose(this->world);
 	auto vsbuffer = vertexBuffer.Buffer();
 	deviceContext->VSSetConstantBuffers(0, 1, &vsbuffer); //set the constant buffer for the vertex shader
 	vertexBuffer.ApplyChanges(deviceContext);
-	deviceContext->DrawIndexed(m_vertCount, 0, 0);
+	deviceContext->DrawIndexed(this->vertCount, 0, 0);
 }
 
 void Model::SetPos(float x, float y, float z)
 {
-	m_x = x;
-	m_y = y;
-	m_z = z;
+	this->x = x;
+	this->y = y;
+	this->z = z;
 	UpdateWorldMatrix();
 }
 
 void Model::SetPos(XMVECTOR pos)
 {
-	m_x = pos.m128_f32[0];
-	m_y = pos.m128_f32[1];
-	m_z = pos.m128_f32[2];
+	this->x = pos.m128_f32[0];
+	this->y = pos.m128_f32[1];
+	this->z = pos.m128_f32[2];
 	UpdateWorldMatrix();
 }
 
 void Model::SetRotation(float xRot, float yRot, float zRot)
 {
-	m_xRot = xRot / 180 * 3.14159;
-	m_yRot = yRot / 180 * 3.14159;
-	m_zRot = zRot / 180 * 3.14159;
+	this->xRot = xRot / 180 * 3.14159;
+	this->yRot = yRot / 180 * 3.14159;
+	this->zRot = zRot / 180 * 3.14159;
 	UpdateWorldMatrix();
 }
 
 void Model::SetScaling(float xScale, float yScale, float zScale)
 {
-	m_xScale = xScale;
-	m_yScale = yScale;
-	m_zScale = zScale;
+	this->xScale = xScale;
+	this->yScale = yScale;
+	this->zScale = zScale;
 	UpdateWorldMatrix();
 }
 
 void Model::AdjustRotation(float xRotOffset, float yRotOffset, float zRotOffset)
 {
-	m_xRot += xRotOffset;
-	m_yRot += yRotOffset;
-	m_zRot += zRotOffset;
-	if (m_xRot > XM_2PI)
-		m_xRot -= XM_2PI;
-	else if (m_xRot < 0)
-		m_xRot += XM_2PI;
-	if (m_yRot > XM_2PI)
-		m_yRot -= XM_2PI;
-	else if (m_yRot < 0)
-		m_yRot += XM_2PI;
-	if (m_zRot > XM_2PI)
-		m_zRot -= XM_2PI;
-	else if (m_zRot < 0)
-		m_zRot += XM_2PI;
+	this->xRot += xRotOffset;
+	this->yRot += yRotOffset;
+	this->zRot += zRotOffset;
+	if (this->xRot > XM_2PI)
+		this->xRot -= XM_2PI;
+	else if (this->xRot < 0)
+		this->xRot += XM_2PI;
+	if (this->yRot > XM_2PI)
+		this->yRot -= XM_2PI;
+	else if (this->yRot < 0)
+		this->yRot += XM_2PI;
+	if (this->zRot > XM_2PI)
+		this->zRot -= XM_2PI;
+	else if (this->zRot < 0)
+		this->zRot += XM_2PI;
 	UpdateWorldMatrix();
 }
 
 XMVECTOR Model::GetPos()
 {
-	return XMVECTOR{ m_x,m_y,m_z, 0 };
+	return XMVECTOR{ this->x,this->y,this->z, 0 };
 }
 
 void Model::UpdateWorldMatrix()
 {
-	m_world = XMMatrixRotationRollPitchYaw(m_xRot, m_yRot, m_zRot) * XMMatrixScaling(m_xScale, m_yScale, m_zScale) * XMMatrixTranslation(m_x,m_y,m_z);
+	this->world = XMMatrixRotationRollPitchYaw(this->xRot, this->yRot, this->zRot) * XMMatrixScaling(this->xScale, this->yScale, this->zScale) * XMMatrixTranslation(this->x,this->y,this->z);
 }

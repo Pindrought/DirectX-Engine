@@ -22,9 +22,9 @@ public:
 	bool IsKeysAutoRepeat();
 	bool IsCharsAutoRepeat();
 private:
-	bool m_autoRepeatKeys = false;
-	bool m_autoRepeatChars = false;
-	bool m_keyStates[256];
-	std::queue<KeyboardEvent> m_keyBuffer;
-	std::queue<unsigned char> m_charBuffer;
+	bool autoRepeatKeys = false;
+	bool autoRepeatChars = false;
+	bool keyStates[256];
+	std::queue<KeyboardEvent> keyBuffer;
+	std::queue<unsigned char> charBuffer;
 };

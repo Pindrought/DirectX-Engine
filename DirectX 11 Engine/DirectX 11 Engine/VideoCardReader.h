@@ -18,6 +18,6 @@ public:
 	int GetVideoCardMemory();
 	std::vector<DisplayMode> GetDisplayModes();
 private:
-	int m_videoCardMemory;
-	std::vector<DisplayMode> m_displayModes;
+	int videoCardMemory;
+	std::vector<DisplayMode> displayModes;
 }

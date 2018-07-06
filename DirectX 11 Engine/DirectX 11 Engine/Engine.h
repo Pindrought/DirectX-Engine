@@ -21,12 +21,12 @@ private:
 	KeyboardClass kbd;
 	bool InitializeWindow();
 	bool InitializeGraphics();
-	int m_height = 0;
-	int m_width = 0;
-	HWND m_hwnd = NULL;
-	HINSTANCE m_hInstance = NULL;
-	Graphics m_gfx;
-	TimerClass m_Timer;
+	int height = 0;
+	int width = 0;
+	HWND hwnd = NULL;
+	HINSTANCE hInstance = NULL;
+	Graphics gfx;
+	TimerClass Timer;
 
 	RECT wr;
 };

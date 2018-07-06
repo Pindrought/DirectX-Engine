@@ -29,21 +29,21 @@ public:
 	const XMVECTOR & GetLeftVector();
 private:
 	void UpdateViewMatrix();
-	XMVECTOR m_pos;
-	XMFLOAT3 m_rot;
-	XMMATRIX m_viewMatrix;
-	XMMATRIX m_projectionMatrix;
+	XMVECTOR pos;
+	XMFLOAT3 rot;
+	XMMATRIX viewMatrix;
+	XMMATRIX projectionMatrix;
 
-	const XMVECTOR m_DEFAULT_FORWARD_VECTOR = { 0, 0, 1 };
-	const XMVECTOR m_DEFAULT_BACKWARD_VECTOR = { 0, 0, -1 };
-	const XMVECTOR m_DEFAULT_UP_VECTOR = { 0, 1, 0 };
-	const XMVECTOR m_DEFAULT_LEFT_VECTOR = { -1, 0, 0 };
-	const XMVECTOR m_DEFAULT_RIGHT_VECTOR = { 1, 0, 0 };
+	const XMVECTOR DEFAULT_FORWARD_VECTOR = { 0, 0, 1 };
+	const XMVECTOR DEFAULT_BACKWARD_VECTOR = { 0, 0, -1 };
+	const XMVECTOR DEFAULT_UP_VECTOR = { 0, 1, 0 };
+	const XMVECTOR DEFAULT_LEFT_VECTOR = { -1, 0, 0 };
+	const XMVECTOR DEFAULT_RIGHT_VECTOR = { 1, 0, 0 };
 
-	XMVECTOR m_vec_forward;
-	XMVECTOR m_vec_left;
-	XMVECTOR m_vec_right;
-	XMVECTOR m_vec_backward;
+	XMVECTOR vec_forward;
+	XMVECTOR vec_left;
+	XMVECTOR vec_right;
+	XMVECTOR vec_backward;
 
 
 };

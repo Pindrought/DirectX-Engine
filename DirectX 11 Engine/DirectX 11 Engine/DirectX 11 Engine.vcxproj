@@ -72,7 +72,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)DirectX 11 Engine\Includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)DirectX 11 Engine\Libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)DirectX 11 Engine\Libs\x86;$(LibraryPath)</LibraryPath>
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -83,7 +83,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>true</LinkIncremental>
     <IncludePath>$(SolutionDir)DirectX 11 Engine\Includes;$(IncludePath)</IncludePath>
-    <LibraryPath>$(SolutionDir)DirectX 11 Engine\Libs;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)DirectX 11 Engine\Libs\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>

@@ -298,7 +298,7 @@ bool Graphics::InitializeScene()
 	}
 	this->skybox.SetPos(0, 0, 0);
 
-	//if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\female.obj") != S_OK)
+	//if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\cube.obj") != S_OK)//
 
 
 	if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\cube.obj") != S_OK)

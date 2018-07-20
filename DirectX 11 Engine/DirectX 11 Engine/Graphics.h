@@ -25,9 +25,10 @@ public:
 	void Release();
 	void RenderFrame(float dt);
 	Camera camera;
-	Model model;
+	Model cube;
 	Model grassModel;
 	Model skybox;
+	Model spaceCompound;
 	std::string drawText = "TEST";
 private:
 	bool InitializeScene();
@@ -65,7 +66,7 @@ private:
 	ConstantBuffer<CB_PS_LIGHT> cb_ps_light;
 	ConstantBuffer<CB_PS_POINTLIGHT> cb_ps_pointlight;
 
-
+	ID3D11DepthStencilState * depthStencilState;
 	ID3D11RasterizerState* rasterizerState;
 
 	ID3D11ShaderResourceView* testTexture;

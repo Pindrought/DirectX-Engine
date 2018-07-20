@@ -82,25 +82,25 @@ void Camera::SetProjectionValues(float FOV, float width, float height, float nea
 
 const XMVECTOR & Camera::GetForwardVector()
 {
-	this->vec_forward.m128_f32[1] = 0;
+	this->vec_forward.m128_f32[1] = 0; //set y part of vector to 0
 	return this->vec_forward;
 }
 
 const XMVECTOR & Camera::GetRightVector()
 {
-	this->vec_right.m128_f32[1] = 0;
+	this->vec_right.m128_f32[1] = 0; //set y part of vector to 0
 	return this->vec_right;
 }
 
 const XMVECTOR & Camera::GetBackwardVector()
 {
-	this->vec_backward.m128_f32[1] = 0;
+	this->vec_backward.m128_f32[1] = 0; //set y part of vector to 0
 	return this->vec_backward;
 }
 
 const XMVECTOR & Camera::GetLeftVector()
 {
-	this->vec_left.m128_f32[1] = 0;
+	this->vec_left.m128_f32[1] = 0; //set y part of vector to 0
 	return this->vec_left;
 }
 
@@ -123,5 +123,4 @@ void Camera::UpdateViewMatrix() //Updates view matrix and also updates the movem
 	this->vec_backward = XMVector3TransformCoord(this->DEFAULT_BACKWARD_VECTOR, camRotationMatrix2);
 	this->vec_left = XMVector3TransformCoord(this->DEFAULT_LEFT_VECTOR, camRotationMatrix2);
 	this->vec_right = XMVector3TransformCoord(this->DEFAULT_RIGHT_VECTOR, camRotationMatrix2);
-
 }

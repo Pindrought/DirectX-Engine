@@ -5,7 +5,7 @@
 class Model
 {
 public:
-	HRESULT Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext);
+	//HRESULT Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext);
 	HRESULT Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string fileName);
 	void Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, ID3D11DeviceContext * deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat);
 	void SetPos(float x, float y, float z);

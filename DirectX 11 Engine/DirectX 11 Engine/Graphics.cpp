@@ -2,7 +2,7 @@
 #include "ShaderLoader.h"
 #include <fstream>
 
-void GenerateP3d()
+void GenerateP3d() //was just using this to generate my skybox 3d object, keeping for documentation in case I messed something up (probably did)
 {
 	float x = 5.0f;
 	Vertex v[] =
@@ -111,7 +111,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 	swapChainDesc.SampleDesc.Count = 8; //# of multisamples per pixel
 	swapChainDesc.SampleDesc.Quality = 0; //Image Quality Level
 	swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-	swapChainDesc.BufferCount = 1; //# of buffers in swap chain
+	swapChainDesc.BufferCount = 2; //# of buffers in swap chain
 	swapChainDesc.OutputWindow = this->hwnd;
 	swapChainDesc.Windowed = TRUE;
 	swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
@@ -284,31 +284,32 @@ bool Graphics::InitializeScene()
 	camera.SetProjectionValues(90, this->width, this->height, 1, 1000);
 	
 	//create constant buffer for vertex shader
-	cb_vs_default.Initialize(this->d3d11Device);
+	hr = cb_vs_default.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize default Vertex Shader Constant Buffer. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	//GenerateP3d();
-
-	if (this->skybox.Initialize(this->d3d11Device, this->d3d11DevCon, "skybox.p3d") != S_OK)
+	if (hr = this->skybox.Initialize(this->d3d11Device, this->d3d11DevCon, "skybox.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
 	}
 	this->skybox.SetPos(0, 0, 0);
 
-	if (this->model.Initialize(this->d3d11Device, this->d3d11DevCon, "cube.p3d") != S_OK)
+	//if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\female.obj") != S_OK)
+
+
+	if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\cube.obj") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	this->model.SetPos(0, 2, 3);
+	this->cube.SetPos(0, 2, 3);
 
-	if (this->grassModel.Initialize(this->d3d11Device, this->d3d11DevCon, "grass.p3d") != S_OK)
+	if (hr = this->grassModel.Initialize(this->d3d11Device, this->d3d11DevCon, "grass.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
@@ -322,7 +323,7 @@ bool Graphics::InitializeScene()
 
 
 	//create constant buffer for pixel shader ambient/directional light
-	cb_ps_light.Initialize(this->d3d11Device);
+	hr = cb_ps_light.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for Lighted Pixel Shader. Error Code: " + std::to_string(hr));
@@ -339,7 +340,7 @@ bool Graphics::InitializeScene()
 	cb_ps_light.ApplyChanges(this->d3d11DevCon);
 
 	//Create point light constant buffer in pixel shader
-	cb_ps_pointlight.Initialize(this->d3d11Device);
+	hr = cb_ps_pointlight.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for PointLight Pixel Shader. Error Code: " + std::to_string(hr));
@@ -358,6 +359,21 @@ bool Graphics::InitializeScene()
 
 	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
+
+	D3D11_DEPTH_STENCIL_DESC depthstencildesc;
+	ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+
+	depthstencildesc.DepthEnable = true;
+	depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthstencildesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+
+	hr = this->d3d11Device->CreateDepthStencilState(&depthstencildesc, &this->depthStencilState);
+	if (hr != S_OK)
+	{
+		LogError("Failed CreateRasterizerState. Error Code: " + std::to_string(hr));
+		return false;
+	}
+	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState, 0);
 
 	//Create rasterizer desc
 	D3D11_RASTERIZER_DESC rasterizerdesc;
@@ -469,6 +485,8 @@ void Graphics::RenderFrame(float dt)
 	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
 	//??Depth Stencil State?? - come back to this later
+	//this->d3d11DevCon->OMSetDepthStencilState(this->dep)
+	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState, 0);
 	this->d3d11DevCon->IASetInputLayout(this->vertLayout);
 	this->d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	this->d3d11DevCon->RSSetState(this->rasterizerState);
@@ -491,9 +509,9 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->grassTexture); //set texture to use for pixel shader
 	this->grassModel.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
-	//draw model
+	//draw cube model
 	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->testTexture); //set texture to use for pixel shader
-	this->model.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->cube.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 	
 

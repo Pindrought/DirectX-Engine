@@ -379,7 +379,7 @@ bool Engine::Update()
 			XMVECTOR pickRayInWorldSpacePos = XMVector3TransformCoord(pickRayInViewSpacePos, viewInverse);
 			XMVECTOR pickRayInWorldSpaceDir = XMVector3TransformNormal(pickRayInViewSpaceDir, viewInverse);
 
-			XMVECTOR vecToModel = this->gfx.model.GetPos() - this->gfx.camera.GetPosition();
+			XMVECTOR vecToModel = this->gfx.cube.GetPos() - this->gfx.camera.GetPosition();
 
 			XMVECTOR vecLength = XMVector3Length(vecToModel);
 
@@ -389,7 +389,7 @@ bool Engine::Update()
 
 			XMVECTOR pickDestination = pickRayInWorldSpacePos + pickRayInWorldSpaceDir * dotResult * vecLength;
 
-			XMVECTOR vecFromPickDestToModel = this->gfx.model.GetPos() - pickDestination;
+			XMVECTOR vecFromPickDestToModel = this->gfx.cube.GetPos() - pickDestination;
 
 			if (XMVector3Length(vecFromPickDestToModel).m128_f32[0] < 1.4f)
 			{
@@ -451,7 +451,7 @@ bool Engine::Update()
 		this->gfx.camera.AdjustRotation(0.002f*dt, 0, 0);
 	}
 
-	this->gfx.model.AdjustRotation(0, cubeRotThing*dt, 0);
+	this->gfx.cube.AdjustRotation(0, cubeRotThing*dt, 0);
 
 
 	return true;

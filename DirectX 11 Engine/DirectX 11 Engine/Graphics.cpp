@@ -484,8 +484,6 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the pixel shader for point light
 	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
-	//??Depth Stencil State?? - come back to this later
-	//this->d3d11DevCon->OMSetDepthStencilState(this->dep)
 	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState, 0);
 	this->d3d11DevCon->IASetInputLayout(this->vertLayout);
 	this->d3d11DevCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);

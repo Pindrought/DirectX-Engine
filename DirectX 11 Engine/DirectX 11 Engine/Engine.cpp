@@ -199,7 +199,7 @@ LRESULT CALLBACK Engine::HandleMsg(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 				if (raw->data.mouse.lLastX != 0 || raw->data.mouse.lLastY != 0)
 				{
 					mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
-					SetCursorPos((wr.right - wr.left) / 2 + wr.left, (wr.bottom - wr.top) / 2 + wr.top);
+					//SetCursorPos((wr.right - wr.left) / 2 + wr.left, (wr.bottom - wr.top) / 2 + wr.top);
 				}
 				//HRESULT hResult = StringCchPrintf(szTempOutput, STRSAFE_MAX_CCH, TEXT("Mouse: usFlags=%04x ulButtons=%04x usButtonFlags=%04x usButtonData=%04x ulRawButtons=%04x lLastX=%04x lLastY=%04x ulExtraInformation=%04x\r\n"),
 				/*raw->data.mouse.usFlags,
@@ -361,7 +361,7 @@ bool Engine::Update()
 		//}
 		if (et == MouseEvent::EventType::RAW_MOVE)
 		{
-			this->gfx.camera.AdjustRotation((float)me.GetPosY() * dt * 0.01f, (float)me.GetPosX() * dt * 0.01f,0);
+			this->gfx.camera.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f,0);
 			//prevMousePos = me.GetPos();
 		}
 		if (et == MouseEvent::EventType::RPress)

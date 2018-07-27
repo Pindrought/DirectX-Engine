@@ -375,6 +375,32 @@ bool Graphics::InitializeScene()
 	}
 	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState, 0);
 
+	//create transparent blend state for ui elements
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+	ZeroMemory(&rtbd, sizeof(rtbd));
+
+	rtbd.BlendEnable = true;
+	rtbd.SrcBlend = D3D11_BLEND_SRC_COLOR;
+	rtbd.DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	rtbd.DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.RenderTarget[0] = rtbd;
+
+	hr = this->d3d11Device->CreateBlendState(&blendDesc, &this->transparentBlendState);
+	if (FAILED(hr))
+	{
+		LogError("Failed CreateBlendState. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
 	//Create rasterizer desc
 	D3D11_RASTERIZER_DESC rasterizerdesc;
 
@@ -467,15 +493,19 @@ void Graphics::Release()
 		this->testTexture->Release();
 	if (this->samplerState != nullptr)
 		this->samplerState->Release();
+	if (this->transparentBlendState != nullptr)
+		this->transparentBlendState->Release();
 }
 
 void Graphics::RenderFrame(float dt)
 {
 	this->fps.Frame();
 	//Clear our backbuffer to the updated color
-	const float bgColor[4] = { 0, 0, 0.0f, 1.0f };
+	const float bgColor[4] = { 1.0, 0, 0.0f, 1.0f };
 
-	//??BLEND STATE?? - come back to this later
+	
+
+	this->d3d11DevCon->OMSetBlendState(0, 0, 0xffffffff); //set blend state to opaque for solid objects
 	auto psbuffer = cb_ps_light.Buffer();
 	this->d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the pixel shader for ambient/directional light 
 	cb_ps_light.ApplyChanges(this->d3d11DevCon);
@@ -495,6 +525,18 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->ClearDepthStencilView(this->depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//draw skybox
+	/*static float bval = 0.00f;
+	static float bdt = 0.001f;
+	bval += bdt*dt;
+	if (bval >= 1.0f || bval < 0.0f)
+	{
+		bdt = -bdt;
+		bval += bdt*dt;
+	}
+	float blendFactor[] = { bval, bval, bval, bval };
+	d3d11DevCon->OMSetBlendState(this->transparentBlendState, blendFactor, 0xffffffff);
+*/
+
 	this->d3d11DevCon->VSSetShader(this->vs_skymap, 0, 0);
 	this->d3d11DevCon->PSSetShader(this->ps_skymap, 0, 0);
 
@@ -503,6 +545,9 @@ void Graphics::RenderFrame(float dt)
 
 	this->d3d11DevCon->VSSetShader(this->vs, 0, 0);
 	this->d3d11DevCon->PSSetShader(this->ps, 0, 0);
+
+	this->d3d11DevCon->OMSetBlendState(0, 0, 0xffffffff); //set blend state to opaque for solid objects
+
 	//draw grass
 	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->grassTexture); //set texture to use for pixel shader
 	this->grassModel.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
@@ -523,7 +568,6 @@ void Graphics::RenderFrame(float dt)
 	std::wstring wstr2(drawText.begin(), drawText.end());
 	const wchar_t * cstr2 = wstr2.c_str();
 	spriteFont->DrawString(spriteBatch.get(), cstr2, XMFLOAT2(10, 27), Colors::White, 0.0f, { 0,0 }, { 0.5f,0.5f });
-
 	spriteBatch->End();
 
 

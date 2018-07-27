@@ -73,6 +73,8 @@ private:
 	ID3D11ShaderResourceView* grassTexture;
 	ID3D11ShaderResourceView* skyboxTexture;
 
+	ID3D11BlendState* transparentBlendState;
+
 	ID3D11SamplerState* samplerState;
 
 	std::unique_ptr<SpriteBatch> spriteBatch;

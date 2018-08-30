@@ -161,7 +161,7 @@ bool Graphics::Initialize(HWND hwnd, int width, int height)
 		LogError("ID3D11Device::CreateDepthStencilView Failed when used for depth stencil view. HRESULT = " + std::to_string(hr));
 		return false;
 	}
-
+	
 	//Create our Render Target
 	hr = this->d3d11Device->CreateRenderTargetView(backBuffer, NULL, &this->renderTargetView);
 	if (hr != S_OK) //If error occurred
@@ -198,7 +198,7 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
-	//load compiled shaders
+	//load skymap shaders
 	hr = ShaderLoader::LoadCompiledShader("Debug\\skymapvertex.cso", &this->vs_skymap_buffer);
 	if (hr != S_OK)
 	{
@@ -206,6 +206,20 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 	hr = ShaderLoader::LoadCompiledShader("Debug\\skymappixel.cso", &this->ps_skymap_buffer);
+	if (hr != S_OK)
+	{
+		LogError("Failed to load pixel shader. Error Code: " + HRToString(hr));
+		return false;
+	}
+
+	//load ui shaders
+	hr = ShaderLoader::LoadCompiledShader("Debug\\uivertex.cso", &this->vs_ui_buffer);
+	if (hr != S_OK)
+	{
+		LogError("Failed to load vertex shader. Error Code: " + HRToString(hr));
+		return false;
+	}
+	hr = ShaderLoader::LoadCompiledShader("Debug\\uipixel.cso", &this->ps_ui_buffer);
 	if (hr != S_OK)
 	{
 		LogError("Failed to load pixel shader. Error Code: " + HRToString(hr));
@@ -242,7 +256,22 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
-	//Create the Input Layout
+	//create ui shaders
+	hr = this->d3d11Device->CreateVertexShader(this->vs_ui_buffer->GetBufferPointer(), this->vs_ui_buffer->GetBufferSize(), NULL, &this->vs_ui);
+	if (hr != S_OK)
+	{
+		LogError("Failed to create Vertex Shader. Error Code: " + HRToString(hr));
+		return false;
+	}
+
+	hr = this->d3d11Device->CreatePixelShader(this->ps_ui_buffer->GetBufferPointer(), this->ps_ui_buffer->GetBufferSize(), NULL, &this->ps_ui);
+	if (hr != S_OK)
+	{
+		LogError("Failed to create Pixel Shader. Error Code: " + HRToString(hr));
+		return false;
+	}
+
+	//Create the Input Layout for 3d objects
 	D3D11_INPUT_ELEMENT_DESC layout[] =
 	{
 		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
@@ -256,6 +285,22 @@ bool Graphics::InitializeScene()
 	if (hr != S_OK)
 	{
 		LogError("Failed to create Input Layout. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
+	//Create the Input Layout for ui elements
+	D3D11_INPUT_ELEMENT_DESC ui_layout[] =
+	{
+		{ "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+		{ "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+	};
+	numElements = ARRAYSIZE(ui_layout);
+
+	this->d3d11Device->CreateInputLayout(ui_layout, numElements, this->vs_ui_buffer->GetBufferPointer(),
+		this->vs_ui_buffer->GetBufferSize(), &this->ui_vertLayout);
+	if (hr != S_OK)
+	{
+		LogError("Failed to create Input Layout for ui elements. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
@@ -322,6 +367,13 @@ bool Graphics::InitializeScene()
 	camera.SetRotation(0,0,0);
 
 
+	//initialize ui elements
+	this->grid_test[0].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, width/2-100/2, height-100, 100, 100);
+	this->grid_test[1].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, 0, 0, 340, 340);
+	this->grid_test[2].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, width / 2 - 100 / 2, height/2 - 100, 45, 45);
+
+
+
 	//create constant buffer for pixel shader ambient/directional light
 	hr = cb_ps_light.Initialize(this->d3d11Device);
 	if (hr != S_OK)
@@ -374,6 +426,45 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState, 0);
+
+	D3D11_DEPTH_STENCIL_DESC depthDisabledStencilDesc;
+	// Clear the second depth stencil state before setting the parameters.
+	ZeroMemory(&depthDisabledStencilDesc, sizeof(depthDisabledStencilDesc));
+
+	// Now create a second depth stencil state which turns off the Z buffer for 2D rendering.  The only difference is 
+	// that DepthEnable is set to false, all other parameters are the same as the other depth stencil state.
+	depthDisabledStencilDesc.DepthEnable = false;
+	depthDisabledStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ALL;
+	depthDisabledStencilDesc.DepthFunc = D3D11_COMPARISON_LESS;
+	depthDisabledStencilDesc.StencilEnable = true;
+	depthDisabledStencilDesc.StencilReadMask = 0xFF;
+	depthDisabledStencilDesc.StencilWriteMask = 0xFF;
+	depthDisabledStencilDesc.FrontFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilDepthFailOp = D3D11_STENCIL_OP_INCR;
+	depthDisabledStencilDesc.FrontFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.FrontFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+	depthDisabledStencilDesc.BackFace.StencilFailOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilDepthFailOp = D3D11_STENCIL_OP_DECR;
+	depthDisabledStencilDesc.BackFace.StencilPassOp = D3D11_STENCIL_OP_KEEP;
+	depthDisabledStencilDesc.BackFace.StencilFunc = D3D11_COMPARISON_ALWAYS;
+
+	// Create the state using the device.
+	hr = this->d3d11Device->CreateDepthStencilState(&depthDisabledStencilDesc, &this->depthStencilStateDisabled);
+	if (FAILED(hr))
+	{
+		LogError("Failed to create disabled depth stencil state.");
+		return false;
+	}
+
+
+	//create constant buffer for ui elements
+	hr = cb_ui.Initialize(this->d3d11Device);
+	if (hr != S_OK)
+	{
+		LogError("Failed Initialize Constant Buffer for UI Elements. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
 
 	//create transparent blend state for ui elements
 	D3D11_BLEND_DESC blendDesc;
@@ -437,6 +528,14 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
+
+	hr = CreateDDSTextureFromFile(this->d3d11Device, L"Data\\Textures\\Border2.dds", NULL, &this->borderTexture);
+	if (hr != S_OK)
+	{
+		LogError("Failed CreateDDSTextureFromFile. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
 	//Create sampler description for sampler state
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -483,6 +582,8 @@ void Graphics::Release()
 		this->vertBuffer->Release();
 	if (this->vertLayout != nullptr)
 		this->vertLayout->Release();
+	if (this->ui_vertLayout != nullptr)
+		this->ui_vertLayout->Release();
 	if (this->depthStencilView != nullptr)
 		this->depthStencilView->Release();
 	if (this->depthStencilBuffer != nullptr)
@@ -501,7 +602,7 @@ void Graphics::RenderFrame(float dt)
 {
 	this->fps.Frame();
 	//Clear our backbuffer to the updated color
-	const float bgColor[4] = { 1.0, 0, 0.0f, 1.0f };
+	const float bgColor[4] = { 0.0, 0, 0.0f, 1.0f };
 
 	
 
@@ -528,7 +629,7 @@ void Graphics::RenderFrame(float dt)
 	/*static float bval = 0.00f;
 	static float bdt = 0.001f;
 	bval += bdt*dt;
-	if (bval >= 1.0f || bval < 0.0f)
+	if (bval >= 1.0f || bval < -1.0f)
 	{
 		bdt = -bdt;
 		bval += bdt*dt;
@@ -546,7 +647,7 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->VSSetShader(this->vs, 0, 0);
 	this->d3d11DevCon->PSSetShader(this->ps, 0, 0);
 
-	this->d3d11DevCon->OMSetBlendState(0, 0, 0xffffffff); //set blend state to opaque for solid objects
+	//this->d3d11DevCon->OMSetBlendState(0, 0, 0xffffffff); //set blend state to opaque for solid objects
 
 	//draw grass
 	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->grassTexture); //set texture to use for pixel shader
@@ -557,6 +658,19 @@ void Graphics::RenderFrame(float dt)
 	this->cube.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 	
+	
+
+	//draw ui
+	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilStateDisabled, 0);
+
+	this->d3d11DevCon->IASetInputLayout(this->ui_vertLayout);
+
+	this->d3d11DevCon->VSSetShader(this->vs_ui, 0, 0);
+	this->d3d11DevCon->PSSetShader(this->ps_ui, 0, 0);
+
+	this->d3d11DevCon->PSSetShaderResources(0, 1, &this->borderTexture); //set texture to use for pixel shader
+	for (int i=0; i<3; i++)
+		this->grid_test[i].Draw();
 
 	//draw font
 	spriteBatch->Begin();
@@ -569,6 +683,8 @@ void Graphics::RenderFrame(float dt)
 	const wchar_t * cstr2 = wstr2.c_str();
 	spriteFont->DrawString(spriteBatch.get(), cstr2, XMFLOAT2(10, 27), Colors::White, 0.0f, { 0,0 }, { 0.5f,0.5f });
 	spriteBatch->End();
+
+	
 
 
 	//Present the backbuffer to the screen

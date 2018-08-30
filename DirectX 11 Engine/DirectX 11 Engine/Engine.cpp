@@ -250,7 +250,7 @@ bool Engine::InitializeWindow()
 	wc.hCursor = LoadCursor(NULL, IDC_ARROW); //Default Cursor - If we leave this null, we have to explicitly set the cursor's shape each time it enters the window.
 	wc.hbrBackground = NULL; //Handle to the class background brush for the window's background color - we will leave this blank for now and later set this to black. For stock brushes, see: https://msdn.microsoft.com/en-us/library/windows/desktop/dd144925(v=vs.85).aspx
 	wc.lpszMenuName = NULL; //Pointer to a null terminated character string for the menu. We are not using a menu yet, so this will be NULL.
-	wc.lpszClassName = L"Winclass"; //Pointer to null terminated string of our class name for this window.
+	wc.lpszClassName = "Winclass"; //Pointer to null terminated string of our class name for this window.
 	wc.cbSize = sizeof(WNDCLASSEX); //Need to fill in the size of our struct for cbSize
 
 	RegisterClassEx(&wc); // Register the class so that it is usable.
@@ -272,7 +272,7 @@ bool Engine::InitializeWindow()
 	// Create the window with the screen settings and get the handle to it. For more information on the function itself, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632680(v=vs.85).aspx
 	HWND hwnd = CreateWindowEx(0, //Extended Windows style - we are using the default. For other options, see: https://msdn.microsoft.com/en-us/library/windows/desktop/ff700543(v=vs.85).aspx
 		wc.lpszClassName, //Window class name
-		L"WinTitle", //Window Title
+		"WinTitle", //Window Title
 		WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU, //Windows style - See: https://msdn.microsoft.com/en-us/library/windows/desktop/ms632600(v=vs.85).aspx
 		wr.left, //Window X Position
 		wr.top, //Window Y Position
@@ -474,7 +474,7 @@ void Engine::Release()
 	if (this->hwnd != NULL)
 	{
 		DestroyWindow(this->hwnd);
-		UnregisterClass(L"WinClass", this->hInstance);
+		UnregisterClass("WinClass", this->hInstance);
 		this->hwnd = NULL;
 		this->hInstance = NULL;
 	}

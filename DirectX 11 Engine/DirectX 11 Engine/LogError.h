@@ -10,8 +10,9 @@ static void LogError(std::string error)
 
 static std::string HRToString(HRESULT hr)
 {
-	_com_error err(hr);
+	return "";
+	/*_com_error err(hr);
 	LPCTSTR errMsg = err.ErrorMessage();
 	std::wstring wstr = errMsg;
-	return std::string(wstr.begin(),wstr.end());
+	return std::string(wstr.begin(),wstr.end());*/
 }

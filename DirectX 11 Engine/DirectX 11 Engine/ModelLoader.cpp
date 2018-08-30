@@ -41,6 +41,19 @@ HRESULT ModelLoader::Loadp3d(ID3D11Device * &device, ID3D11DeviceContext * &devi
 	infile.read((char*)indices.get(), sizeof(DWORD) * indexCount);
 	vertCount = indexCount;
 
+	std::ofstream txtver(fileName + ".txt");
+	txtver << "vertices" << std::endl;
+	for (int i = 0; i < vertexCount; i++)
+	{
+		txtver << "[" << v[i].pos.x << "," << v[i].pos.y << "," << v[i].pos.z << "][" << v[i].texCoord.x << "," << v[i].texCoord.y << "][" << v[i].normal.x << "," << v[i].normal.y << "," << v[i].normal.z << "]" << std::endl;
+	}
+	txtver << "indices" << std::endl;
+	for (int i = 0; i < indexCount; i++)
+	{
+		txtver << indices[i] << std::endl;
+	}
+	txtver.close();
+
 	Vertex * check = v.get();
 	DWORD * check2 = indices.get();
 

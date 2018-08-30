@@ -31,6 +31,12 @@
     <Filter Include="Source Files\Keyboard">
       <UniqueIdentifier>{5c4218f3-d9e0-43ce-98e8-c1c6185b1f4b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{8ab0b18d-66b6-4300-ae56-002df69e5f75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{f1ec6230-92f7-42ca-89a9-f95b623d89dc}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Source.cpp">
@@ -74,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="ModelLoader.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="UI\Grid.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -137,6 +146,9 @@
     <ClInclude Include="ModelLoader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="UI\Grid.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="shaders.hlsl">
@@ -152,6 +164,12 @@
       <Filter>Resource Files</Filter>
     </FxCompile>
     <FxCompile Include="skymappixel.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="uipixel.hlsl">
+      <Filter>Resource Files</Filter>
+    </FxCompile>
+    <FxCompile Include="uivertex.hlsl">
       <Filter>Resource Files</Filter>
     </FxCompile>
   </ItemGroup>

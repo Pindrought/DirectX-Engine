@@ -15,6 +15,7 @@
 #include "ConstantBuffer.h"
 #include "IncludeUtilities.h"
 #include "Camera.h"
+#include "UI\\Grid.h"
 
 using namespace DirectX;
 
@@ -29,6 +30,7 @@ public:
 	Model grassModel;
 	Model skybox;
 	Model spaceCompound;
+	UI::Grid grid_test[3];
 	std::string drawText = "TEST";
 private:
 	bool InitializeScene();
@@ -47,6 +49,8 @@ private:
 	ID3D11PixelShader * ps_skymap;
 	ID3D11VertexShader * vs_skymap;
 
+	ID3D11PixelShader * ps_ui;
+	ID3D11VertexShader * vs_ui;
 
 	ID3D10Blob* vs_buffer;
 	ID3D10Blob* ps_buffer;
@@ -54,7 +58,11 @@ private:
 	ID3D10Blob* vs_skymap_buffer;
 	ID3D10Blob* ps_skymap_buffer;
 
+	ID3D10Blob* vs_ui_buffer;
+	ID3D10Blob* ps_ui_buffer;
+
 	ID3D11InputLayout* vertLayout;
+	ID3D11InputLayout* ui_vertLayout;
 
 	ID3D11Buffer* indexBuffer;
 	ID3D11Buffer* vertBuffer;
@@ -62,16 +70,19 @@ private:
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11Texture2D* depthStencilBuffer;
 
+	ConstantBuffer<CB_UI> cb_ui;
 	ConstantBuffer<CB_VS_DEFAULT> cb_vs_default;
 	ConstantBuffer<CB_PS_LIGHT> cb_ps_light;
 	ConstantBuffer<CB_PS_POINTLIGHT> cb_ps_pointlight;
 
 	ID3D11DepthStencilState * depthStencilState;
+	ID3D11DepthStencilState * depthStencilStateDisabled;
 	ID3D11RasterizerState* rasterizerState;
 
 	ID3D11ShaderResourceView* testTexture;
 	ID3D11ShaderResourceView* grassTexture;
 	ID3D11ShaderResourceView* skyboxTexture;
+	ID3D11ShaderResourceView* borderTexture;
 
 	ID3D11BlendState* transparentBlendState;
 
@@ -81,5 +92,4 @@ private:
 	std::unique_ptr<SpriteFont> spriteFont;
 
 	FpsClass fps;
-
 };

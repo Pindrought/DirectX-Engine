@@ -2,7 +2,7 @@
 #define ConstantBuffer_h__
 #include <d3d11.h>
 #include "ConstantBufferType.h"
-
+#include <wrl/client.h>
 
 template<class T>
 class ConstantBuffer
@@ -11,23 +11,18 @@ private:
 	ConstantBuffer(const ConstantBuffer<T>& rhs);
 
 private:
-	ID3D11Buffer* mBuffer;
+
+	Microsoft::WRL::ComPtr<ID3D11Buffer> buffer;
 	bool mInitialized;
 
 public:
 	ConstantBuffer() {}
 
-	~ConstantBuffer()
-	{
-		if (mBuffer != nullptr)
-			mBuffer->Release();
-	};
-
 	T Data;
 
 	ID3D11Buffer* Buffer()const
 	{
-		return mBuffer;
+		return buffer.Get();
 	}
 
 	HRESULT Initialize(ID3D11Device* device)
@@ -41,7 +36,7 @@ public:
 		desc.ByteWidth = static_cast<UINT>(sizeof(T) + (16 - (sizeof(T) % 16)));
 		desc.StructureByteStride = 0;
 
-		hr = device->CreateBuffer(&desc, 0, &mBuffer);
+		hr = device->CreateBuffer(&desc, 0, buffer.GetAddressOf());
 		mInitialized = true;
 		return hr;
 	}
@@ -49,9 +44,9 @@ public:
 	void ApplyChanges(ID3D11DeviceContext* dc)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		HRESULT hr = dc->Map(mBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+		HRESULT hr = dc->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 		CopyMemory(mappedResource.pData, &Data, sizeof(T));
-		dc->Unmap(mBuffer, 0);
+		dc->Unmap(buffer.Get(), 0);
 	}
 };
 

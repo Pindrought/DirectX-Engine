@@ -18,3 +18,8 @@ struct CB_PS_POINTLIGHT
 {
 	PointLight light;
 };
+
+struct CB_UI
+{
+	XMFLOAT4 position;
+};

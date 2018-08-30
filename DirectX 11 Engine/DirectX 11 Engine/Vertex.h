@@ -13,3 +13,14 @@ struct Vertex    //Overloaded Vertex Structure
 	XMFLOAT2 texCoord;
 	XMFLOAT3 normal;
 };
+
+struct UIVertex
+{
+	UIVertex() {}
+	UIVertex(float x, float y, float z,
+		float u, float v)
+		: pos(x, y, z), texCoord(u, v) {}
+
+	XMFLOAT3 pos;
+	XMFLOAT2 texCoord;
+};

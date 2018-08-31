@@ -5,8 +5,8 @@
 class Model
 {
 public:
-	HRESULT Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string fileName);
-	void Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, ID3D11DeviceContext * deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat);
+	HRESULT Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string fileName);
+	void Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat);
 	void SetPos(float x, float y, float z);
 	void SetPos(XMVECTOR pos);
 	void SetRotation(float xRot, float yRot, float zRot);
@@ -15,8 +15,8 @@ public:
 	XMVECTOR GetPos();
 private:
 	void UpdateWorldMatrix();
-	ID3D11Buffer* indexBuffer;
-	ID3D11Buffer* vertBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> vertBuffer;
 	XMMATRIX world;
 	float x, y, z;
 	float xRot, yRot, zRot;

@@ -4,7 +4,7 @@
 
 namespace UI
 {
-	HRESULT Grid::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, ConstantBuffer<CB_UI> & cb_ui, float window_width, float window_height, float x, float y, float width, float height)
+	HRESULT Grid::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, ConstantBuffer<CB_UI> & cb_ui, float window_width, float window_height, float x, float y, float width, float height)
 	{
 		this->deviceContext = deviceContext;
 		this->cb_ui = &cb_ui;
@@ -156,7 +156,7 @@ namespace UI
 		ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 		vertexBufferData.pSysMem = verts.data();
 		HRESULT hr;
-		hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &this->vertBuffer);
+		hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, this->vertBuffer.GetAddressOf());
 		if (hr != S_OK)
 		{
 			LogError("Failed to call ID3D11Device::CreateBuffer for the vertex buffer. Error Code: " + std::to_string(hr));
@@ -174,7 +174,7 @@ namespace UI
 
 		D3D11_SUBRESOURCE_DATA indexBufferData;
 		indexBufferData.pSysMem = indices.data();
-		hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &this->indexBuffer);
+		hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, this->indexBuffer.GetAddressOf());
 		if (hr != S_OK)
 		{
 			LogError("Failed to call ID3D11Device::CreateBuffer for the index buffer. Error Code: " + std::to_string(hr));
@@ -187,8 +187,8 @@ namespace UI
 	{
 		UINT stride = sizeof(UIVertex);
 		UINT offset = 0;
-		deviceContext->IASetVertexBuffers(0, 1, &this->vertBuffer, &stride, &offset);
-		deviceContext->IASetIndexBuffer(this->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+		deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
+		deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 		//constant buffer for ui shader
 		cb_ui->Data.position.x = this->pos.x;
 		cb_ui->Data.position.y = this->pos.y;

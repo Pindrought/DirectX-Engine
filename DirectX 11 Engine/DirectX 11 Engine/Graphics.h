@@ -33,63 +33,65 @@ public:
 	UI::Grid grid_test[3];
 	std::string drawText = "TEST";
 private:
+	bool InitializeShaders();
 	bool InitializeScene();
 
 	int width = 0;
 	int height = 0;
 	HWND hwnd;
-	IDXGISwapChain* swapChain;
-	ID3D11Device* d3d11Device;
-	ID3D11DeviceContext* d3d11DevCon;
-	ID3D11RenderTargetView* renderTargetView;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> swapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> d3d11Device;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> d3d11DevCon;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> renderTargetView;
 
-	ID3D11VertexShader* vs;
-	ID3D11PixelShader* ps;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vs;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps;
 
-	ID3D11PixelShader * ps_skymap;
-	ID3D11VertexShader * vs_skymap;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps_skymap;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_skymap;
 
-	ID3D11PixelShader * ps_ui;
-	ID3D11VertexShader * vs_ui;
+	Microsoft::WRL::ComPtr<ID3D11PixelShader> ps_ui;
+	Microsoft::WRL::ComPtr<ID3D11VertexShader> vs_ui;
 
-	ID3D10Blob* vs_buffer;
-	ID3D10Blob* ps_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> vs_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> ps_buffer;
 
-	ID3D10Blob* vs_skymap_buffer;
-	ID3D10Blob* ps_skymap_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> vs_skymap_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> ps_skymap_buffer;
 
-	ID3D10Blob* vs_ui_buffer;
-	ID3D10Blob* ps_ui_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> vs_ui_buffer;
+	Microsoft::WRL::ComPtr<ID3D10Blob> ps_ui_buffer;
 
-	ID3D11InputLayout* vertLayout;
-	ID3D11InputLayout* ui_vertLayout;
-
-	ID3D11Buffer* indexBuffer;
-	ID3D11Buffer* vertBuffer;
-
-	ID3D11DepthStencilView* depthStencilView;
-	ID3D11Texture2D* depthStencilBuffer;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> default_vertLayout;
+	Microsoft::WRL::ComPtr<ID3D11InputLayout> ui_vertLayout;
+	
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 
 	ConstantBuffer<CB_UI> cb_ui;
 	ConstantBuffer<CB_VS_DEFAULT> cb_vs_default;
 	ConstantBuffer<CB_PS_LIGHT> cb_ps_light;
 	ConstantBuffer<CB_PS_POINTLIGHT> cb_ps_pointlight;
 
-	ID3D11DepthStencilState * depthStencilState;
-	ID3D11DepthStencilState * depthStencilStateDisabled;
-	ID3D11RasterizerState* rasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> depthStencilStateDisabled;
 
-	ID3D11ShaderResourceView* testTexture;
-	ID3D11ShaderResourceView* grassTexture;
-	ID3D11ShaderResourceView* skyboxTexture;
-	ID3D11ShaderResourceView* borderTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> testTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> grassTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> skyboxTexture;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> borderTexture;
 
-	ID3D11BlendState* transparentBlendState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> rasterizerState;
 
-	ID3D11SamplerState* samplerState;
+
+	Microsoft::WRL::ComPtr<ID3D11BlendState> transparentBlendState;
+
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> samplerState;
 
 	std::unique_ptr<SpriteBatch> spriteBatch;
 	std::unique_ptr<SpriteFont> spriteFont;
 
 	FpsClass fps;
+
+	bool vSync = false;
 };

@@ -18,7 +18,7 @@ bool Engine::Initialize(HINSTANCE hInstance, int width, int height)
 		//registration failed. Call GetLastError for the cause of the error
 	}
 
-	this->Timer.Initialize();
+	this->timer.Start();
 
 	if (InitializeWindow() == false)
 		return false;
@@ -196,7 +196,7 @@ LRESULT CALLBACK Engine::HandleMsg(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
 			RAWINPUT* raw = (RAWINPUT*)lpb;
 			if (raw->header.dwType == RIM_TYPEMOUSE)
 			{
-				if (raw->data.mouse.lLastX != 0 || raw->data.mouse.lLastY != 0)
+				if (raw->data.mouse.lLastX != 0 || raw->data.mouse.lLastY != 0 || true)
 				{
 					mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
 					//SetCursorPos((wr.right - wr.left) / 2 + wr.left, (wr.bottom - wr.top) / 2 + wr.top);
@@ -332,8 +332,8 @@ bool Engine::ProcessMessages()
 
 bool Engine::Update()
 {
-	this->Timer.Frame();
-	dt = this->Timer.GetTime();
+	dt = this->timer.GetMilisecondsElapsed();
+	this->timer.Restart();
 
 	//If input to be processed by keyboard class
 	while (kbd.CharBufferIsEmpty() == false) //If characters to be processed
@@ -343,7 +343,7 @@ bool Engine::Update()
 	while (kbd.KeyBufferIsEmpty() == false) //If key presses/releases need to be processed
 	{
 		KeyboardEvent kbe = kbd.ReadKey(); //Get keyboard event for processing
-		if (kbe.GetKeyCode() == VK_ESCAPE)
+		if (kbe.GetKeyCode() == VK_ESCAPE && kbe.IsPress())
 		{
 			return false;
 		}
@@ -362,7 +362,6 @@ bool Engine::Update()
 		if (et == MouseEvent::EventType::RAW_MOVE)
 		{
 			this->gfx.camera.AdjustRotation((float)me.GetPosY() * 0.01f, (float)me.GetPosX() * 0.01f,0);
-			//prevMousePos = me.GetPos();
 		}
 		if (et == MouseEvent::EventType::RPress)
 		{
@@ -393,17 +392,17 @@ bool Engine::Update()
 
 			if (XMVector3Length(vecFromPickDestToModel).m128_f32[0] < 1.4f)
 			{
-				this->gfx.drawText = "Intersection";
+				//this->gfx.drawText = "Intersection";
 				cubeRotThing = -cubeRotThing;
 			}
 			else
 			{
-				this->gfx.drawText = "No intersection";
+				//this->gfx.drawText = "No intersection";
 			}
 		}
 		else
 		{
-			this->gfx.drawText = "N/A";
+			//this->gfx.drawText = "N/A";
 		}
 	}
 

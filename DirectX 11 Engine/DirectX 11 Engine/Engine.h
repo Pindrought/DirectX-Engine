@@ -26,7 +26,7 @@ private:
 	HWND hwnd = NULL;
 	HINSTANCE hInstance = NULL;
 	Graphics gfx;
-	TimerClass Timer;
+	Timer timer;
 
 	RECT wr;
 };

@@ -170,7 +170,7 @@
     <ClCompile Include="MouseEvent.cpp" />
     <ClCompile Include="ShaderLoader.cpp" />
     <ClCompile Include="Source.cpp" />
-    <ClCompile Include="TimerClass.cpp" />
+    <ClCompile Include="Timer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Camera.h" />
@@ -191,7 +191,7 @@
     <ClInclude Include="MouseClass.h" />
     <ClInclude Include="MouseEvent.h" />
     <ClInclude Include="ShaderLoader.h" />
-    <ClInclude Include="TimerClass.h" />
+    <ClInclude Include="Timer.h" />
     <ClInclude Include="Vertex.h" />
     <ClInclude Include="VideoCardReader.h" />
   </ItemGroup>

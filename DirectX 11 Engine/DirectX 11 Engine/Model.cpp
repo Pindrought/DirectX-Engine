@@ -4,9 +4,9 @@
 #include <memory>
 #include "ModelLoader.h"
 
-HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceContext, std::string fileName)
+HRESULT Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string fileName)
 {
-	HRESULT hr = ModelLoader::LoadModel(device, deviceContext, fileName, this->vertBuffer, this->indexBuffer, this->vertCount);
+	HRESULT hr = ModelLoader::LoadModel(device, fileName, this->vertBuffer, this->indexBuffer, this->vertCount);
 	if (hr != S_OK)
 	{
 		return hr;
@@ -19,13 +19,13 @@ HRESULT Model::Initialize(ID3D11Device * device, ID3D11DeviceContext * deviceCon
 	return S_OK;
 }
 
-void Model::Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, ID3D11DeviceContext * deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat)
+void Model::Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat)
 {
 	//Set the vertex buffer
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, &this->vertBuffer, &stride, &offset);
-	deviceContext->IASetIndexBuffer(this->indexBuffer, DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
+	deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	//constant buffer for vertex shader
 	vertexBuffer.Data.wvp = XMMatrixTranspose(this->world * viewMat * projectionMat);
 	vertexBuffer.Data.world = XMMatrixTranspose(this->world);

@@ -51,9 +51,6 @@
     <ClCompile Include="ShaderLoader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="TimerClass.cpp">
-      <Filter>Source Files\Utility</Filter>
-    </ClCompile>
     <ClCompile Include="FPSClass.cpp">
       <Filter>Source Files\Utility</Filter>
     </ClCompile>
@@ -84,6 +81,9 @@
     <ClCompile Include="UI\Grid.cpp">
       <Filter>Source Files\UI</Filter>
     </ClCompile>
+    <ClCompile Include="Timer.cpp">
+      <Filter>Source Files\Utility</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h">
@@ -103,9 +103,6 @@
     </ClInclude>
     <ClInclude Include="ConstantBuffer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimerClass.h">
-      <Filter>Header Files\Utility</Filter>
     </ClInclude>
     <ClInclude Include="FPSClass.h">
       <Filter>Header Files\Utility</Filter>
@@ -148,6 +145,9 @@
     </ClInclude>
     <ClInclude Include="UI\Grid.h">
       <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Timer.h">
+      <Filter>Header Files\Utility</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

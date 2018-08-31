@@ -5,7 +5,7 @@
 #include <vector>
 #include <sstream>
 
-HRESULT ModelLoader::LoadModel(ID3D11Device * &device, ID3D11DeviceContext * &deviceContext, std::string &fileName, ID3D11Buffer * &vertexBuffer, ID3D11Buffer * &indexBuffer, UINT &vertCount)
+HRESULT ModelLoader::LoadModel(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string &fileName, Microsoft::WRL::ComPtr<ID3D11Buffer> &vertexBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &indexBuffer, UINT &vertCount)
 {
 	std::string p3dextension = ".p3d";
 	std::string objextension = ".obj";
@@ -13,11 +13,11 @@ HRESULT ModelLoader::LoadModel(ID3D11Device * &device, ID3D11DeviceContext * &de
 	size_t val = (fileName.size() - 5);
 	if (fileName.find(p3dextension) == (fileName.size()-4)) 
 	{
-		return Loadp3d(device, deviceContext, fileName, vertexBuffer, indexBuffer, vertCount);
+		return Loadp3d(device, fileName, vertexBuffer, indexBuffer, vertCount);
 	}
 	if (fileName.find(objextension) == (fileName.size() - 4))
 	{
-		return Loadobj(device, deviceContext, fileName, vertexBuffer, indexBuffer, vertCount);
+		return Loadobj(device, fileName, vertexBuffer, indexBuffer, vertCount);
 	}
 	LogError("3d Object File Extension not supported in file: " + fileName);
 	return E_NOTIMPL;
@@ -25,7 +25,7 @@ HRESULT ModelLoader::LoadModel(ID3D11Device * &device, ID3D11DeviceContext * &de
 
 
 
-HRESULT ModelLoader::Loadp3d(ID3D11Device * &device, ID3D11DeviceContext * &deviceContext, std::string &fileName, ID3D11Buffer * &vertexBuffer, ID3D11Buffer * &indexBuffer, UINT &vertCount)
+HRESULT ModelLoader::Loadp3d(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string &fileName, Microsoft::WRL::ComPtr<ID3D11Buffer> &vertexBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &indexBuffer, UINT &vertCount)
 {
 	std::ifstream infile(fileName, std::ios::binary);
 
@@ -83,7 +83,7 @@ HRESULT ModelLoader::Loadp3d(ID3D11Device * &device, ID3D11DeviceContext * &devi
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 	vertexBufferData.pSysMem = v.get();
 	HRESULT hr;
-	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &vertexBuffer);
+	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the vertex buffer. Error Code: " + std::to_string(hr));
@@ -101,7 +101,7 @@ HRESULT ModelLoader::Loadp3d(ID3D11Device * &device, ID3D11DeviceContext * &devi
 
 	D3D11_SUBRESOURCE_DATA indexBufferData;
 	indexBufferData.pSysMem = indices.get();
-	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &indexBuffer);
+	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, indexBuffer.GetAddressOf());
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the index buffer. Error Code: " + std::to_string(hr));
@@ -152,7 +152,7 @@ bool LoadFaceData(std::string mystring, int * facedata)
 	return true;
 }
 
-HRESULT ModelLoader::Loadobj(ID3D11Device *& device, ID3D11DeviceContext *& deviceContext, std::string & fileName, ID3D11Buffer *& vertexBuffer, ID3D11Buffer *& indexBuffer, UINT & vertCount)
+HRESULT ModelLoader::Loadobj(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string & fileName, Microsoft::WRL::ComPtr<ID3D11Buffer> &vertexBuffer, Microsoft::WRL::ComPtr<ID3D11Buffer> &indexBuffer, UINT & vertCount)
 {
 	std::vector<Vertex> vertices;
 
@@ -329,7 +329,7 @@ HRESULT ModelLoader::Loadobj(ID3D11Device *& device, ID3D11DeviceContext *& devi
 
 	ZeroMemory(&vertexBufferData, sizeof(vertexBufferData));
 	vertexBufferData.pSysMem = vertices.data();
-	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, &vertexBuffer);
+	hr = device->CreateBuffer(&vertexBufferDesc, &vertexBufferData, vertexBuffer.GetAddressOf());
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the vertex buffer. Error Code: " + std::to_string(hr));
@@ -347,7 +347,7 @@ HRESULT ModelLoader::Loadobj(ID3D11Device *& device, ID3D11DeviceContext *& devi
 
 	D3D11_SUBRESOURCE_DATA indexBufferData;
 	indexBufferData.pSysMem = indices.data();
-	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, &indexBuffer);
+	hr = device->CreateBuffer(&indexBufferDesc, &indexBufferData, indexBuffer.GetAddressOf());
 	if (hr != S_OK)
 	{
 		LogError("Failed to call ID3D11Device::CreateBuffer for the index buffer. Error Code: " + std::to_string(hr));

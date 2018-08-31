@@ -1,4 +1,4 @@
 #pragma once
-#include "TimerClass.h"
+#include "Timer.h"
 #include "FPSClass.h"
 #include "CPUClass.h"

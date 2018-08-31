@@ -1,10 +1,11 @@
 #pragma once
-#include "Vertex.h"
+#include "ModelLoader.h"
 #include <string>
 
 class Model
 {
 public:
+	~Model();
 	HRESULT Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string fileName);
 	void Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat);
 	void SetPos(float x, float y, float z);
@@ -17,6 +18,7 @@ private:
 	void UpdateWorldMatrix();
 	Microsoft::WRL::ComPtr<ID3D11Buffer> indexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> vertBuffer;
+	std::shared_ptr<ModelData> modeldata = nullptr;
 	XMMATRIX world;
 	float x, y, z;
 	float xRot, yRot, zRot;

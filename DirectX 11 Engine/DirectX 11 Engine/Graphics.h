@@ -27,6 +27,7 @@ public:
 	void RenderFrame(float dt);
 	Camera camera;
 	Model cube;
+	Model cube2;
 	Model grassModel;
 	Model skybox;
 	Model spaceCompound;

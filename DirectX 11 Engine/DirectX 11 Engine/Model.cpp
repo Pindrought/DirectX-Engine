@@ -6,7 +6,8 @@
 
 HRESULT Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string fileName)
 {
-	HRESULT hr = ModelLoader::LoadModel(device, fileName, this->vertBuffer, this->indexBuffer, this->vertCount);
+	//HRESULT hr = ModelLoader::LoadModel(device, fileName, this->vertBuffer, this->indexBuffer, this->vertCount);
+	HRESULT hr = ModelLoader::LoadModel(device, fileName, this->modeldata);
 	if (hr != S_OK)
 	{
 		return hr;
@@ -24,15 +25,17 @@ void Model::Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, Microsoft::WRL::C
 	//Set the vertex buffer
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
-	deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
-	deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	//deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
+	//deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	deviceContext->IASetVertexBuffers(0, 1, this->modeldata->vertex_buffer.GetAddressOf(), &stride, &offset);
+	deviceContext->IASetIndexBuffer(this->modeldata->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	//constant buffer for vertex shader
 	vertexBuffer.Data.wvp = XMMatrixTranspose(this->world * viewMat * projectionMat);
 	vertexBuffer.Data.world = XMMatrixTranspose(this->world);
 	auto vsbuffer = vertexBuffer.Buffer();
 	deviceContext->VSSetConstantBuffers(0, 1, &vsbuffer); //set the constant buffer for the vertex shader
 	vertexBuffer.ApplyChanges(deviceContext);
-	deviceContext->DrawIndexed(this->vertCount, 0, 0);
+	deviceContext->DrawIndexed(this->modeldata->indices.size(), 0, 0);
 }
 
 void Model::SetPos(float x, float y, float z)
@@ -90,6 +93,11 @@ void Model::AdjustRotation(float xRotOffset, float yRotOffset, float zRotOffset)
 XMVECTOR Model::GetPos()
 {
 	return XMVECTOR{ this->x,this->y,this->z, 0 };
+}
+
+Model::~Model()
+{
+	ModelManager::ReleaseModelInstance(modeldata);
 }
 
 void Model::UpdateWorldMatrix()

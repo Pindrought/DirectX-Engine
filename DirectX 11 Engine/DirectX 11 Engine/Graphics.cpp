@@ -276,7 +276,16 @@ bool Graphics::InitializeScene()
 		return false;
 	}
 
+	if (hr = this->cube2.Initialize(this->d3d11Device, "Data\\Objects\\cube.obj") != S_OK)
+	{
+		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
+		return false;
+	}
+
 	this->cube.SetPos(0, 2, 3);
+	this->cube2.SetPos(0, 2, 33);
+
+
 
 	if (hr = this->grassModel.Initialize(this->d3d11Device, "grass.p3d") != S_OK)
 	{
@@ -539,7 +548,7 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->PSSetShaderResources(0, 1, this->testTexture.GetAddressOf()); //set texture to use for pixel shader
 	this->cube.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
-	
+	this->cube2.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 
 	//draw ui

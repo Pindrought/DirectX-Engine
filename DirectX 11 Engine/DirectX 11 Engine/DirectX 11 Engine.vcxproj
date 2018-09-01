@@ -161,6 +161,7 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="FPSClass.cpp" />
     <ClCompile Include="Graphics.cpp" />
+    <ClCompile Include="ModelManager.cpp" />
     <ClCompile Include="UI\Grid.cpp" />
     <ClCompile Include="KeyboardClass.cpp" />
     <ClCompile Include="KeyboardEvent.cpp" />
@@ -180,6 +181,8 @@
     <ClInclude Include="Engine.h" />
     <ClInclude Include="FPSClass.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="ModelData.h" />
+    <ClInclude Include="ModelManager.h" />
     <ClInclude Include="UI\Grid.h" />
     <ClInclude Include="IncludeUtilities.h" />
     <ClInclude Include="KeyboardClass.h" />

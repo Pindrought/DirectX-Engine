@@ -4,10 +4,11 @@
 
 namespace UI
 {
-	HRESULT Grid::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, ConstantBuffer<CB_UI> & cb_ui, float window_width, float window_height, float x, float y, float width, float height)
+	HRESULT Grid::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, ConstantBuffer<CB_VS_UI> & cb_vs_ui, ConstantBuffer<CB_PS_UI> &cb_ps_ui, float window_width, float window_height, float x, float y, float width, float height)
 	{
 		this->deviceContext = deviceContext;
-		this->cb_ui = &cb_ui;
+		this->cb_vs_ui = &cb_vs_ui;
+		this->cb_ps_ui = &cb_ps_ui;
 		this->pos.x = (2*x)/window_width;
 		this->pos.y = -(2*y)/window_height;
 		this->window_width = window_width;
@@ -189,21 +190,62 @@ namespace UI
 		UINT offset = 0;
 		deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
 		deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-		//constant buffer for ui shader
-		cb_ui->Data.position.x = this->pos.x;
-		cb_ui->Data.position.y = this->pos.y;
-		cb_ui->Data.position.z = 0;
-		cb_ui->Data.position.w = 0;
-		auto vsbuffer = cb_ui->Buffer();
+		//constant buffer for ui vertex shader
+		this->cb_vs_ui->Data.position.x = this->pos.x;
+		this->cb_vs_ui->Data.position.y = this->pos.y;
+		this->cb_vs_ui->Data.position.z = 0;
+		this->cb_vs_ui->Data.position.w = 0;
+		auto vsbuffer = this->cb_vs_ui->Buffer();
 		deviceContext->VSSetConstantBuffers(0, 1, &vsbuffer); //set the constant buffer for the vertex shader
-		cb_ui->ApplyChanges(this->deviceContext);
+		this->cb_vs_ui->ApplyChanges(this->deviceContext);
+		//constant buffer for ui pixel shader
+		this->cb_ps_ui->Data.maincolor = this->maincolor;
+		this->cb_ps_ui->Data.bgcolor = this->bgcolor;
+		auto psbuffer = this->cb_ps_ui->Buffer();
+		deviceContext->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the vertex shader
+		this->cb_ps_ui->ApplyChanges(this->deviceContext);
+
 		this->deviceContext->DrawIndexed(this->vertCount, 0, 0);
 	}
 	XMFLOAT2 Grid::WindowToSpace(XMFLOAT2 coords)
 	{
 		XMFLOAT2 r; //return coords
-		r.x = -1.0f + (coords.x / window_width) * 2;
+		r.x = -1.0f + (coords.x / this->window_width) * 2;
 		r.y = 1.0f - (coords.y / this->window_height) * 2;
 		return r;
+	}
+	void Grid::SetColor(float r, float g, float b, float a)
+	{
+		this->SetColor(XMFLOAT4(r, g, b, a));
+	}
+	void Grid::SetColor(XMFLOAT4 color)
+	{
+		this->maincolor = color;
+	}
+	void Grid::SetBackgroundColor(float r, float g, float b, float a)
+	{
+		this->SetBackgroundColor(XMFLOAT4(r, g, b, a));
+	}
+	void Grid::SetBackgroundColor(XMFLOAT4 color)
+	{
+		this->bgcolor = color;
+	}
+	void Grid::SetPosition(float x, float y)
+	{
+		this->SetPosition(XMFLOAT2(x, y));
+	}
+	void Grid::SetPosition(XMFLOAT2 pos)
+	{
+		this->pos.x = (2 * pos.x) / window_width;
+		this->pos.y = -(2 * pos.y) / window_height;
+	}
+	void Grid::AdjustPosition(float offsetx, float offsety)
+	{
+		this->AdjustPosition(XMFLOAT2(offsetx, offsety));
+	}
+	void Grid::AdjustPosition(XMFLOAT2 offset)
+	{
+		this->pos.x += ((2 * offset.x) / window_width);
+		this->pos.y += (-(2 * offset.y) / window_height);
 	}
 }

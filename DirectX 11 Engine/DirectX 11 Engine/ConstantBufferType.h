@@ -19,7 +19,13 @@ struct CB_PS_POINTLIGHT
 	PointLight light;
 };
 
-struct CB_UI
+struct CB_VS_UI
 {
 	XMFLOAT4 position;
+};
+
+struct CB_PS_UI
+{
+	XMFLOAT4 maincolor;
+	XMFLOAT4 bgcolor;
 };

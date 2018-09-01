@@ -69,7 +69,8 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> depthStencilView;
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> depthStencilBuffer;
 
-	ConstantBuffer<CB_UI> cb_ui;
+	ConstantBuffer<CB_VS_UI> cb_vs_ui;
+	ConstantBuffer<CB_PS_UI> cb_ps_ui;
 	ConstantBuffer<CB_VS_DEFAULT> cb_vs_default;
 	ConstantBuffer<CB_PS_LIGHT> cb_ps_light;
 	ConstantBuffer<CB_PS_POINTLIGHT> cb_ps_pointlight;
@@ -94,5 +95,5 @@ private:
 
 	FpsClass fps;
 
-	bool vSync = false;
+	bool vSync = true;
 };

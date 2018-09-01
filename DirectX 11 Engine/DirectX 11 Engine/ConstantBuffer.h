@@ -25,7 +25,7 @@ public:
 		return buffer.Get();
 	}
 
-	HRESULT Initialize(Microsoft::WRL::ComPtr<ID3D11Device> device)
+	HRESULT Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device)
 	{
 		HRESULT hr = S_OK;
 		D3D11_BUFFER_DESC desc;
@@ -41,7 +41,7 @@ public:
 		return hr;
 	}
 
-	void ApplyChanges(Microsoft::WRL::ComPtr<ID3D11DeviceContext> dc)
+	void ApplyChanges(Microsoft::WRL::ComPtr<ID3D11DeviceContext> &dc)
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		HRESULT hr = dc->Map(buffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);

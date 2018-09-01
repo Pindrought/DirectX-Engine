@@ -253,14 +253,14 @@ bool Graphics::InitializeScene()
 	camera.SetProjectionValues(90, this->width, this->height, 1, 1000);
 	
 	//create constant buffer for vertex shader
-	hr = cb_vs_default.Initialize(this->d3d11Device.Get());
+	hr = cb_vs_default.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize default Vertex Shader Constant Buffer. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	if (hr = this->skybox.Initialize(this->d3d11Device, "skybox.p3d") != S_OK)
+	if (hr = this->skybox.Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_default, "skybox.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
@@ -270,13 +270,13 @@ bool Graphics::InitializeScene()
 	//if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, "Data\\Objects\\cube.obj") != S_OK)//
 
 
-	if (hr = this->cube.Initialize(this->d3d11Device, "Data\\Objects\\cube.obj") != S_OK)
+	if (hr = this->cube.Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_default, "Data\\Objects\\cube.obj") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
-	if (hr = this->cube2.Initialize(this->d3d11Device, "Data\\Objects\\cube.obj") != S_OK)
+	if (hr = this->cube2.Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_default, "Data\\Objects\\cube.obj") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
@@ -287,7 +287,7 @@ bool Graphics::InitializeScene()
 
 
 
-	if (hr = this->grassModel.Initialize(this->d3d11Device, "grass.p3d") != S_OK)
+	if (hr = this->grassModel.Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_default, "grass.p3d") != S_OK)
 	{
 		LogError("Failed Initialize model. Error Code: " + std::to_string(hr));
 		return false;
@@ -300,12 +300,15 @@ bool Graphics::InitializeScene()
 	camera.SetRotation(0,0,0);
 
 	//initialize ui elements
-	this->grid_test[0].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, width/2-100/2, height-100, 100, 100);
-	this->grid_test[1].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, 0, 0, 340, 340);
-	this->grid_test[2].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_ui, this->width, this->height, width / 2 - 100 / 2, height/2 - 100, 45, 45);
+	this->grid_test[0].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_ui, this->cb_ps_ui, this->width, this->height, width/2-100/2, height-100, 100, 100);
+	this->grid_test[1].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_ui, this->cb_ps_ui, this->width, this->height, 0, 0, 340, 340);
+	this->grid_test[2].Initialize(this->d3d11Device, this->d3d11DevCon, this->cb_vs_ui, this->cb_ps_ui, this->width, this->height, width / 2 - 100 / 2, height/2 - 100, 45, 45);
+	this->grid_test[2].SetColor(0.5, 0, 0, 0.5f);
+	this->grid_test[2].SetBackgroundColor(1.0f, 1.0f, 1.0f, 0.5f);
+	this->grid_test[2].SetPosition(45, 45);
 
 	//create constant buffer for pixel shader ambient/directional light
-	hr = cb_ps_light.Initialize(this->d3d11Device.Get());
+	hr = cb_ps_light.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for Lighted Pixel Shader. Error Code: " + std::to_string(hr));
@@ -319,10 +322,10 @@ bool Graphics::InitializeScene()
 	auto psbuffer = cb_ps_light.Buffer();
 	this->d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the vertex shader
 
-	cb_ps_light.ApplyChanges(this->d3d11DevCon.Get());
+	cb_ps_light.ApplyChanges(this->d3d11DevCon);
 
 	//Create point light constant buffer in pixel shader
-	hr = cb_ps_pointlight.Initialize(this->d3d11Device.Get());
+	hr = cb_ps_pointlight.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
 		LogError("Failed Initialize Constant Buffer for PointLight Pixel Shader. Error Code: " + std::to_string(hr));
@@ -339,7 +342,7 @@ bool Graphics::InitializeScene()
 	auto psbuffer2 = cb_ps_pointlight.Buffer();
 	this->d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the vertex shader
 
-	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon.Get());
+	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
 	D3D11_DEPTH_STENCIL_DESC depthstencildesc;
 	ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
@@ -386,13 +389,19 @@ bool Graphics::InitializeScene()
 	}
 
 	//create constant buffer for ui elements
-	hr = cb_ui.Initialize(this->d3d11Device.Get());
+	hr = this->cb_vs_ui.Initialize(this->d3d11Device);
 	if (hr != S_OK)
 	{
-		LogError("Failed Initialize Constant Buffer for UI Elements. Error Code: " + std::to_string(hr));
+		LogError("Failed Initialize Constant Buffer for UI Elements Vertex Shader. Error Code: " + std::to_string(hr));
 		return false;
 	}
 
+	hr = this->cb_ps_ui.Initialize(this->d3d11Device);
+	if (hr != S_OK)
+	{
+		LogError("Failed Initialize Constant Buffer for UI Elements Pixel Shader. Error Code: " + std::to_string(hr));
+		return false;
+	}
 
 	//create transparent blend state for ui elements
 	D3D11_BLEND_DESC blendDesc;
@@ -402,15 +411,22 @@ bool Graphics::InitializeScene()
 	ZeroMemory(&rtbd, sizeof(rtbd));
 
 	rtbd.BlendEnable = true;
-	rtbd.SrcBlend = D3D11_BLEND_SRC_COLOR;
+	/*rtbd.SrcBlend = D3D11_BLEND_SRC_COLOR;
 	rtbd.DestBlend = D3D11_BLEND_BLEND_FACTOR;
 	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
 	rtbd.SrcBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	rtbd.DestBlendAlpha = D3D11_BLEND_SRC_ALPHA;
 	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
-	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;*/
+	rtbd.SrcBlend = D3D11_BLEND_SRC_ALPHA;
+	rtbd.DestBlend = D3D11_BLEND_INV_SRC_ALPHA;
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = 0x0f;
 
-	blendDesc.AlphaToCoverageEnable = false;
+	//blendDesc.AlphaToCoverageEnable = false;
 	blendDesc.RenderTarget[0] = rtbd;
 
 	hr = this->d3d11Device->CreateBlendState(&blendDesc, this->transparentBlendState.GetAddressOf());
@@ -457,7 +473,7 @@ bool Graphics::InitializeScene()
 	}
 
 
-	hr = CreateDDSTextureFromFile(this->d3d11Device.Get(), L"Data\\Textures\\Border2.dds", NULL, this->borderTexture.GetAddressOf());
+	hr = CreateDDSTextureFromFile(this->d3d11Device.Get(), L"Data\\Textures\\borderblackwhite.dds", NULL, this->borderTexture.GetAddressOf());
 	if (hr != S_OK)
 	{
 		LogError("Failed CreateDDSTextureFromFile. Error Code: " + std::to_string(hr));
@@ -500,11 +516,11 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->OMSetBlendState(0, 0, 0xffffffff); //set blend state to opaque for solid objects
 	auto psbuffer = cb_ps_light.Buffer();
 	this->d3d11DevCon->PSSetConstantBuffers(0, 1, &psbuffer); //set the constant buffer for the pixel shader for ambient/directional light 
-	cb_ps_light.ApplyChanges(this->d3d11DevCon.Get());
+	cb_ps_light.ApplyChanges(this->d3d11DevCon);
 
 	auto psbuffer2 = cb_ps_pointlight.Buffer();
 	this->d3d11DevCon->PSSetConstantBuffers(1, 1, &psbuffer2); //set the constant buffer for the pixel shader for point light
-	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon.Get());
+	cb_ps_pointlight.ApplyChanges(this->d3d11DevCon);
 
 	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilState.Get(), 0);
 	this->d3d11DevCon->IASetInputLayout(this->default_vertLayout.Get());
@@ -533,7 +549,7 @@ void Graphics::RenderFrame(float dt)
 	this->d3d11DevCon->PSSetShader(this->ps_skymap.Get(), 0, 0);
 
 	this->d3d11DevCon->PSSetShaderResources(0, 1, this->skyboxTexture.GetAddressOf()); //set texture to use for pixel shader
-	this->skybox.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->skybox.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	this->d3d11DevCon->VSSetShader(this->vs.Get(), 0, 0);
 	this->d3d11DevCon->PSSetShader(this->ps.Get(), 0, 0);
@@ -542,22 +558,40 @@ void Graphics::RenderFrame(float dt)
 
 	//draw grass
 	this->d3d11DevCon->PSSetShaderResources(0, 1, this->grassTexture.GetAddressOf()); //set texture to use for pixel shader
-	this->grassModel.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->grassModel.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 	//draw cube model
 	this->d3d11DevCon->PSSetShaderResources(0, 1, this->testTexture.GetAddressOf()); //set texture to use for pixel shader
-	this->cube.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->cube.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
-	this->cube2.Draw(cb_vs_default, this->d3d11DevCon, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	this->cube2.Draw(camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	
 
 	//draw ui
 	this->d3d11DevCon->OMSetDepthStencilState(this->depthStencilStateDisabled.Get(), 0);
+	static float alpha = 01.0f;
+	static float alphachange = 0.01f;
+	/*alpha += alphachange;
+	if (alpha > 1.0f || alpha < 0.0f)
+		alphachange = -alphachange;*/
+	float blendFactor[] = { 0, 1.0, 0, 0.0f};
+	d3d11DevCon->OMSetBlendState(this->transparentBlendState.Get(), blendFactor, 0xffffffff);
 
 	this->d3d11DevCon->IASetInputLayout(this->ui_vertLayout.Get());
 
 	this->d3d11DevCon->VSSetShader(this->vs_ui.Get(), 0, 0);
 	this->d3d11DevCon->PSSetShader(this->ps_ui.Get(), 0, 0);
+
+	static float xchange = 0.0f;
+	static float dx = 0.5f;
+	xchange += dx*dt;
+	if (xchange < 0.0f || xchange > 200.0f)
+	{
+		dx = -dx;
+		xchange += dx*dt;
+	}
+
+	this->grid_test[2].AdjustPosition(dx*dt, 0);
 
 	this->d3d11DevCon->PSSetShaderResources(0, 1, this->borderTexture.GetAddressOf()); //set texture to use for pixel shader
 	for (int i=0; i<3; i++)

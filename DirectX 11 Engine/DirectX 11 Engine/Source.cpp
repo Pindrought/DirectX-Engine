@@ -5,7 +5,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
 	Engine engine;
 	bool success = engine.Initialize(hInstance, 800, 600);
 	Timer timer;
-	double desiredFps = 9000;
+	double desiredFps = 144;
 
 	if (success == true)
 	{

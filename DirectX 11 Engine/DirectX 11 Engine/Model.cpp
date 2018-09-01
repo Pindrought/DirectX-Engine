@@ -4,9 +4,11 @@
 #include <memory>
 #include "ModelLoader.h"
 
-HRESULT Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::string fileName)
+HRESULT Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, std::string fileName)
 {
 	//HRESULT hr = ModelLoader::LoadModel(device, fileName, this->vertBuffer, this->indexBuffer, this->vertCount);
+	this->deviceContext = deviceContext;
+	this->cb_vs_buffer = &vertexBuffer;
 	HRESULT hr = ModelLoader::LoadModel(device, fileName, this->modeldata);
 	if (hr != S_OK)
 	{
@@ -20,21 +22,21 @@ HRESULT Model::Initialize(Microsoft::WRL::ComPtr<ID3D11Device> &device, std::str
 	return S_OK;
 }
 
-void Model::Draw(ConstantBuffer<CB_VS_DEFAULT> & vertexBuffer, Microsoft::WRL::ComPtr<ID3D11DeviceContext> &deviceContext, const XMMATRIX & viewMat, const XMMATRIX & projectionMat)
+void Model::Draw(const XMMATRIX & viewMat, const XMMATRIX & projectionMat)
 {
 	//Set the vertex buffer
 	UINT stride = sizeof(Vertex);
 	UINT offset = 0;
 	//deviceContext->IASetVertexBuffers(0, 1, this->vertBuffer.GetAddressOf(), &stride, &offset);
 	//deviceContext->IASetIndexBuffer(this->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0);
-	deviceContext->IASetVertexBuffers(0, 1, this->modeldata->vertex_buffer.GetAddressOf(), &stride, &offset);
-	deviceContext->IASetIndexBuffer(this->modeldata->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
+	this->deviceContext->IASetVertexBuffers(0, 1, this->modeldata->vertex_buffer.GetAddressOf(), &stride, &offset);
+	this->deviceContext->IASetIndexBuffer(this->modeldata->index_buffer.Get(), DXGI_FORMAT_R32_UINT, 0);
 	//constant buffer for vertex shader
-	vertexBuffer.Data.wvp = XMMatrixTranspose(this->world * viewMat * projectionMat);
-	vertexBuffer.Data.world = XMMatrixTranspose(this->world);
-	auto vsbuffer = vertexBuffer.Buffer();
+	this->cb_vs_buffer->Data.wvp = XMMatrixTranspose(this->world * viewMat * projectionMat);
+	this->cb_vs_buffer->Data.world = XMMatrixTranspose(this->world);
+	auto vsbuffer = this->cb_vs_buffer->Buffer();
 	deviceContext->VSSetConstantBuffers(0, 1, &vsbuffer); //set the constant buffer for the vertex shader
-	vertexBuffer.ApplyChanges(deviceContext);
+	this->cb_vs_buffer->ApplyChanges(this->deviceContext);
 	deviceContext->DrawIndexed(this->modeldata->indices.size(), 0, 0);
 }
 
